@@ -111,13 +111,13 @@
 
   <div id="header">
   <a href="https://github.com/SahilPatel650/wildfire-prediction" target="_blank">
-    <img class = "image3" src="devpost.svg" >
+    <img class = "image3" src="{{ url_for('static', filename='images/devpost.svg') }}" >
   </a>
   <a href="https://github.com/SahilPatel650/wildfire-prediction"  target="_blank"> 
-    <img class = "image2" src="github-mark-white.svg" >
+    <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
   </a>
   <a href="blazecast.co"  target="_blank"> 
-    <img src="logo.png" alt="Logo">
+    <img src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
   </a>
     <h1>BlazeCast AI</h1>
     
@@ -141,7 +141,7 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
-    <script src="main.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
     </body>
     </html>
