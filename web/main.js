@@ -21,7 +21,7 @@ finalizeButton.onAdd = function() {
   button.innerHTML = 'Finalize';
   button.onclick = function() {
     if (userLocation) {
-      mymap.setView(userLocation, 16); // Zoom into the chosen location
+      mymap.setView(userLocation, 12); // Zoom into the chosen location
       createGrid();
       finalizeButton.remove();
       resetButton.remove();
@@ -48,7 +48,7 @@ mymap.on('click', function(e) {
 });
 
 function createGrid() {
-  const gridSize = 0.002; // Size of each square in degrees
+  const gridSize = 0.008; // Size of each square in degrees
   const latitudes = [];
   const longitudes = [];
 
