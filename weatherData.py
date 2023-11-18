@@ -43,7 +43,6 @@ def get_weather_data(latitude, longitude, start_date, end_date, fire_id):
             "datetime": weather_data['days'][0]['datetime'],
             "tempmax": weather_data['days'][0]['tempmax'],
             "tempmin": weather_data['days'][0]['tempmin'],
-            "temp": weather_data['days'][0]['temp'],
             "humidity": weather_data['days'][0]['humidity'],
             "precip": weather_data['days'][0]['precip'],
             "windspeed": weather_data['days'][0]['windspeed'],
