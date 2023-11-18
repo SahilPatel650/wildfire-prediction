@@ -18,6 +18,7 @@ for (let i = 0; i < 32; i++) {
 
 const mymap = L.map('map').setView([40.770116, -73.967909], 8); // Default zoom level
 
+
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
   maxZoom: 18,
   id: 'mapbox/streets-v11',
@@ -199,3 +200,14 @@ function resetMap() {
 console.log(gridData);
 gridData = [...reverseArray(gridData)];
 console.log(gridData);
+
+
+
+
+// document.getElementById('run-python').addEventListener('click', () => {
+//   console.log("Clicked")
+//   fetch('/run_script')
+//                 .then(response => response.json())
+//                 .then(data => console.log(data.result))
+//                 .catch(error => console.error('Error:', error));
+// });
