@@ -10,7 +10,7 @@ def index():
 def run_script():
     # Code to execute your Python script
     import subprocess
-    subprocess.run(["python3", "exec.py"])  # Replace 'your_script.py' with your actual script name
+    subprocess.run(["python3", "entry.py"])  # Replace 'your_script.py' with your actual script name
     return "Python script executed successfully!"
 
 if __name__ == '__main__':
