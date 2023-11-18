@@ -1,11 +1,32 @@
 import requests
 import json
 import os
+import numpy as np
 # Define your Google Elevation API key here
 ELEVATION_API_KEY = "AIzaSyAhtNZsHIYxwfy2Ms5-lxAa9v-tOA_hF78"
 
 # Define your Visual Crossing API key here
 VISUAL_CROSSING_API_KEY = "K47XQXT3QH58XJ6863YB5VAL4"
+
+
+def relative_humidity_to_specific_humidity(temp_celsius, relative_humidity):
+    # Constants for the Magnus-Tetens approximation
+    A = 17.625
+    B = 243.04  # in degrees Celsius
+
+    # Calculate saturation vapor pressure in hPa
+    E_s = 6.112 * np.exp(A * temp_celsius / (B + temp_celsius))
+
+    # Calculate actual vapor pressure
+    E = (relative_humidity / 100) * E_s
+
+    # Convert to specific humidity in kg/kg
+    # Using approximation: q ≈ 0.622 * E / (P - E)
+    # Assuming standard atmospheric pressure P = 1013.25 hPa
+    P = 1013.25  # in hPa
+    q = 0.622 * E / (P - E)
+
+    return q
 
 
 def get_elevation(latitude, longitude):
@@ -44,7 +65,7 @@ def get_weather_data(latitude, longitude, start_date, end_date):
         print("Fetching from cache")
         return cache[cache_key]
 
-    base_url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{latitude},{longitude}/{start_date}/{end_date}?key={VISUAL_CROSSING_API_KEY}&unitGroup=us&include=days&contentType=json"
+    base_url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{latitude},{longitude}/{start_date}/{end_date}?key={VISUAL_CROSSING_API_KEY}&unitGroup=metric&include=days&contentType=json"
 
     response = requests.get(base_url)
 
@@ -60,10 +81,10 @@ def get_weather_data(latitude, longitude, start_date, end_date):
         extracted_data = {
             "elevation": get_elevation(latitude, longitude),
             "winddir": weather_data['days'][0]['winddir'],
-            "windspeed": weather_data['days'][0]['windspeed'],
-            "tempmin": weather_data['days'][0]['tempmin'],
-            "tempmax": weather_data['days'][0]['tempmax'],
-            "humidity": weather_data['days'][0]['humidity'],
+            "windspeed": weather_data['days'][0]['windspeed']/ 3.6,
+            "tempmin": weather_data['days'][0]['tempmin'] + 273.15,
+            "tempmax": weather_data['days'][0]['tempmax'] + 273.15,
+            "humidity": relative_humidity_to_specific_humidity(weather_data['days'][0]['tempmax'], weather_data['days'][0]['humidity']),
             "precip": weather_data['days'][0]['precip'],
         }
 
@@ -76,3 +97,9 @@ def get_weather_data(latitude, longitude, start_date, end_date):
     except KeyError as e:
         print(f"KeyError: {e}. Please check the structure of the API response.")
         return None
+
+# def main():
+#     # data = get_weather_data(33.77162950463133, -84.39199233135656, "2023-11-17", "2023-11-17")
+#     print(relative_humidity_to_specific_humidity(21, 78))
+
+# main()
