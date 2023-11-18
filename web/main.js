@@ -2,6 +2,19 @@ const apiKey = 'pk.eyJ1IjoiYWxmcmVkMjAxNiIsImEiOiJja2RoMHkyd2wwdnZjMnJ0MTJwbnVme
 let userLocation = null;
 let gridSquares = []; // Keep track of created grid squares
 let gridLocked = false; // Flag to lock/unlock the grid
+let gridData = []; // Store latitude, longitude, and selection status for each grid box
+
+// Initialize gridData
+for (let i = 0; i < 32; i++) {
+  gridData[i] = [];
+  for (let j = 0; j < 32; j++) {
+    gridData[i][j] = {
+      lat: null,
+      lng: null,
+      selected: false,
+    };
+  }
+}
 
 const mymap = L.map('map').setView([40.770116, -73.967909], 8); // Default zoom level
 
@@ -83,7 +96,7 @@ function zoomToArea(location) {
 
 function createGrid() {
   const gridSize = 0.009; // 1km in degrees (approximately)
-  
+
   // Clear existing grid squares if any
   for (let square of gridSquares) {
     square.remove();
@@ -127,9 +140,20 @@ function createGrid() {
 
       square.on('click', function () {
         if (!gridLocked) {
+          console.log('clicked at' + lat + ', ' + lng)
           square.setStyle({ fillColor: 'red' });
+          // Find the corresponding grid box in gridData and update its selected status
+          const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
+          const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
+          gridData[latIndex][lngIndex].selected = true;
         }
       });
+
+      // Store latitude and longitude in gridData
+      const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
+      const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
+      gridData[latIndex][lngIndex].lat = lat;
+      gridData[latIndex][lngIndex].lng = lng;
 
       gridSquares.push(square); // Store the created grid squares
     }
@@ -140,15 +164,38 @@ function finalizeGrid() {
   gridLocked = true; // Lock the grid
 }
 
+function resetGridData() {
+  for (let i = 0; i < 32; i++) {
+    for (let j = 0; j < 32; j++) {
+      gridData[i][j] = {
+        lat: null,
+        lng: null,
+        selected: false,
+      };
+    }
+  }
+}
+
+function reverseArray(gridData) {
+  return gridData.map(row => row.reverse()).reverse();
+}
+
+
+
 function resetMap() {
   // Reset the map to its original state
   userLocation = null;
   mymap.setView([40.770116, -73.967909], 8); // Reset to default view
-  
+
   // Remove grid squares and their red color
   for (let square of gridSquares) {
     square.remove(); // Remove the grid square from the map
   }
 
   gridSquares = []; // Clear the stored grid squares
+
+  gridLocked = false; // Unlock the grid
 }
+console.log(gridData);
+gridData = [...reverseArray(gridData)];
+console.log(gridData);
