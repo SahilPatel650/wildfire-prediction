@@ -15,13 +15,15 @@ data = get_dataset(
     random_crop=True,
     center_crop=False
 )
+# print(np.unique(next(iter(data))[0][0, :, :, -1].numpy()))
+# print(next(iter(data))[0].shape)
 
 if sys.argv[1] == "train":
     model = tf.keras.Sequential()
-    model.add(tf.keras.layers.Conv2D(32, 3, strides=(2, 2), activation="relu", input_shape=(32, 32, 8)))
-    model.add(tf.keras.layers.Conv2D(64, 3, strides=(2, 2), activation="relu", input_shape=(15, 15, 32)))
+    model.add(tf.keras.layers.Conv2D(32, 3, padding="same", activation="relu", input_shape=(64, 64, 8)))
+    model.add(tf.keras.layers.Conv2D(64, 3, padding="same", activation="relu", input_shape=(64, 64, 32)))
+    model.add(tf.keras.layers.Conv2D(1, 2, padding="same", activation="sigmoid", input_shape=(64, 64, 64)))
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(1024, activation="sigmoid"))
 
     model.compile(optimizer=tf.keras.optimizers.Adam(0.001), loss="binary_crossentropy")
     model.summary()
@@ -34,14 +36,14 @@ else:
 pred_x_y = next(iter(data))
 pred_x = pred_x_y[0][:1]
 pred_y = pred_x_y[1][:1]
-print(pred_x.shape)
-print(np.unique(pred_x.numpy()[0, :, :, -1]))
+# print(pred_x.shape)
+# print(np.unique(pred_x.numpy()[0, :, :, -1]))
 preds = model.predict(pred_x)[0]
 # print(np.mean(preds))
 preds = tf.map_fn(lambda x: 1.0 if x >= 0.1 else 0.0, preds)
 preds = tf.reshape(preds, (32, 32))
-# plt.imshow(pred_x[0,:,  :,-1])
-# plt.show()
+plt.imshow(pred_x[0,:,  :,-1])
+plt.show()
 plt.imshow(tf.reshape(pred_y, (32, 32)))
 plt.show()
 plt.imshow(preds)

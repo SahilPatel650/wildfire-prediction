@@ -58,7 +58,6 @@ def random_crop_input_and_output_images(input_img, output_img, sample_size, num_
     output_img = combined[:, :, -num_out_channels:]
     return input_img, output_img
 
-
 def center_crop_input_and_output_images(input_img, output_img, sample_size):
     central_fraction = sample_size / input_img.shape[0]
     input_img = tf.image.central_crop(input_img, central_fraction)
@@ -122,19 +121,9 @@ def _parse_fn(example_proto, data_size, sample_size, num_in_channels, clip_and_n
     assert len(outputs_stacked.shape) == 3, 'outputs_stacked should be rank 3'
     output_img = tf.transpose(outputs_stacked, [1, 2, 0])
 
-    if random_crop:
-        input_img, output_img = random_crop_input_and_output_images(
-            input_img, output_img, sample_size, num_in_channels, len(output_features)
-        )
-    elif center_crop:
-        input_img, output_img = center_crop_input_and_output_images(
-            input_img, output_img, sample_size
-        )
     output_img = tf.reshape(output_img, [-1])
     output_img = tf.cast(output_img, tf.int32)
     output_img = tf.map_fn(lambda x: 0 if x < 0 else x, output_img)
-    # print(output_img.shape)
-    # return input_img, output_img, tf.map_fn(lambda x: 5 if x == 1 else 1, output_img)
     return input_img, output_img
 
 def get_dataset(file_pattern, data_size, sample_size, batch_size, num_in_channels, clip_and_normalize, clip_and_rescale, random_crop, center_crop):
@@ -156,12 +145,12 @@ if __name__ == "__main__":
     dataset = get_dataset(
       "data/next_day_wildfire_spread_train*",
       data_size=64,
-      sample_size=32,
+      sample_size=64,
       batch_size=100,
       num_in_channels=8,
       clip_and_normalize=False,
       clip_and_rescale=False,
-      random_crop=True,
+      random_crop=False,
       center_crop=False
     )
-    print(np.unique(next(iter(dataset))[1].numpy()))
+    # print(np.unique(next(iter(dataset))[1].numpy()))
