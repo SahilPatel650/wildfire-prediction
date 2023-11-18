@@ -11,7 +11,6 @@ def get_elevation(latitude, longitude):
     elevation_url = f"https://maps.googleapis.com/maps/api/elevation/json?locations={latitude},{longitude}&key={ELEVATION_API_KEY}"
     elevation_response = requests.get(elevation_url)
     
-    
     if elevation_response.status_code != 200:
         print('Unexpected Elevation API Status code:', elevation_response.status_code)
         return None
@@ -52,32 +51,10 @@ def get_weather_data(latitude, longitude, start_date, end_date, fire_id):
             "elevation": get_elevation(latitude, longitude)
         }
 
-        # Construct the output file name
-        output_file = f"{fire_id}-weatherdata.json"
+        print("Extracted Weather Data:", extracted_data)
 
-        # Write the extracted data to the specified output file
-        with open(output_file, 'w') as output_file:
-            json.dump(extracted_data, output_file, indent=2)
-
-        print(f"Weather data has been saved to {output_file}")
         return extracted_data
 
     except KeyError as e:
         print(f"KeyError: {e}. Please check the structure of the API response.")
         return None
-
-def main():
-    # Input parameters
-    latitude = input("Enter latitude (e.g., 38.9697): ")
-    longitude = input("Enter longitude (e.g., -77.385): ")
-    start_date = input("Enter start date (YYYY-MM-DD): ")
-    end_date = input("Enter end date (YYYY-MM-DD): ")
-    fire_id = input("Enter fire ID: ")
-
-    # Get weather data and save it to the output file
-    weather_data = get_weather_data(latitude, longitude, start_date, end_date, fire_id)
-
-    # You can use weather_data in your further processing if needed
-
-if __name__ == "__main__":
-    main()
