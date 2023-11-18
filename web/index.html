@@ -20,7 +20,40 @@
       display: flex;
       overflow:hidden;
     }
-
+    
+    /* CSS */
+    .button-1 {
+      background-color: #011c32;
+      border-radius: 8px;
+      border-style: none;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: inline-block;
+      font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      height: 40px;
+      line-height: 20px;
+      list-style: none;
+      margin: 0;
+      outline: none;
+      padding: 10px 16px;
+      position: relative;
+      text-align: center;
+      text-decoration: none;
+      transition: color 100ms;
+      vertical-align: baseline;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    
+    .button-1:hover,
+    .button-1:focus {
+      background-color: #011c32bf;
+    }
+    
     #header {
       text-align: left;
       color: white;
@@ -29,7 +62,7 @@
       border-bottom: 2px solid black;
       position: relative;
     }
-
+    
     #header img{
       position: absolute;
       top: 20px; /* Adjust top position */
@@ -37,11 +70,18 @@
       width: 100px; /* Adjust width as needed */
       height: auto;
     }
-
+    
     #header h1 {
       margin-left: 100px;
     }
-
+    
+    #vstack {
+      flex: 1;
+      display: flex;
+      align-items: center; /* Vertically align items */
+      vertical-align: bottom;
+    }
+    
     #map {
       flex: 1;
     }
@@ -49,19 +89,30 @@
 </head>
 <body>
 
-  <div id="header">
-    <img src="blaze-logo.png" alt="Logo">
-    <h1>BlazeCast AI</h1>
-  </div>
+      <div id="header">
+        <img src="blaze-logo.png" alt="Logo">
+        <h1>BlazeCast AI</h1>
+      </div>
 
-  <div id="map-container">
-    <div id="map"></div>
-    <div id="map"></div>
-  </div>
+      <div id="map-container">
+        <div id="map"></div>
+        <div id="vstack">
+          <button id="run-python" class="button-1" onclick="runPythonScript()">Run Python Script</button>
+          
+          <script>
+            function runPythonScript() {
+                fetch('/run_script')
+                    .then(response => response.text())
+                    .then(data => console.log(data))
+                    .catch(error => console.error('Error:', error));
+            }
+          </script>
+        </div>
+      </div>
 
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
-<script src="main.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
+    <script src="main.js"></script>
 
-</body>
-</html>
+    </body>
+    </html>
