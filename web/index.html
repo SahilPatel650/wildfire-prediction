@@ -22,24 +22,36 @@
     }
 
     #header {
-      flex: 0;
-      text-align: center;
-      color: black;
+      text-align: left;
+      color: white;
       padding: 20px;
-      background: linear-gradient(orange, white, orange);
+      background: #011c32;
       border-bottom: 2px solid black;
+      position: relative;
+    }
+
+    #header img{
+      position: absolute;
+      top: 20px; /* Adjust top position */
+      left: 5px; /* Adjust left position */
+      width: 100px; /* Adjust width as needed */
+      height: auto;
+    }
+
+    #header h1 {
+      margin-left: 100px;
     }
 
     #map {
       flex: 1;
-      border: 2px solid black;
     }
   </style>
 </head>
 <body>
 
   <div id="header">
-    <h1>Leaflet Map with Drawing</h1>
+    <img src="logo.png" alt="Logo">
+    <h1>BlazeCast AI</h1>
   </div>
 
   <div id="map-container">
