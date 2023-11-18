@@ -1,0 +1,20 @@
+{
+    "38.977523,77.418781": {
+        "elevation": 1176.482788085938,
+        "winddir": 105.5,
+        "windspeed": 4.0,
+        "tempmin": 36.6,
+        "tempmax": 50.8,
+        "humidity": 28.7,
+        "precip": 0.0
+    },
+    "38.9697,-77.385": {
+        "elevation": 114.0946350097656,
+        "winddir": 254.0,
+        "windspeed": 7.6,
+        "tempmin": 42.0,
+        "tempmax": 62.9,
+        "humidity": 76.1,
+        "precip": 0.003
+    }
+}
