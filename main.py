@@ -39,11 +39,12 @@ if __name__ == "__main__":
             data[i, j, 0] = weather_data
             data[i, j, 1] = selected
 
-    data[0] = ai_utils.normalize_elevation(data[0])
+    print(data.shape)
+    data[:, :, 0] = ai_utils.normalize_elevation(data[:, :, 0])
     model = ai_utils.get_model((64, 64, 2))
     model.load_weights("training/models/no_frp_model.h5")
     preds = model_inference(data, model)
     print(preds)
     plt.imshow(preds, cmap=colormaps["Reds"])
-    # plt.show()
-    plt.savefig("web/static/images/prediction.png", bbox_inches="tight")
+    plt.show()
+    # plt.savefig("web/static/images/prediction.png", bbox_inches="tight")
