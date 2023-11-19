@@ -1,7 +1,6 @@
 import sys
 import json
 import numpy as np
-from weather_data import generate_3d_array
 from api_cache import get_elevation
 
 if __name__ == "__main__":
