@@ -185,71 +185,111 @@
     <div id="map"></div>
     <div id="vstack">
       <button id="run-python" class="button-1" onclick="finalize()">Run Python Script</button>
-      <!-- Dropdown added here -->
-      <select id="zoom-locations" class="button-2">
-        <option value="36.7783,-119.4179">California</option>
-        <option value="32.7157,-117.1611">San Diego</option>
-        <option value="34.0522,-118.2437">Los Angeles</option>
-        <option value="default">Default Zoom</option>
-      </select>
-      <!-- End of Dropdown -->
       <div class="loading-container">
         <div class="loading"></div>
         <div class="output"></div>
       </div>
+      <!-- Dropdown added here -->
+      <select id="zoom-locations" class="button-2">
+        <option value="default" selected>Default Zoom</option>
+        <option value="California">California</option>
+        <option value="Texas">Texas</option>
+        <option value="Colorado">Colorado</option>
+      </select>
+      
+      <!-- End of Dropdown -->
     </div>
   </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    
     <script>
-     // Define the bounds for California
-const californiaBounds = [
+     const californiaBounds = [
   [32.5343, -124.4096], // Southwest coordinates
   [42.0095, -114.1308]  // Northeast coordinates
 ];
 
-// Set the maximum bounds of the map to California's boundaries
-mymap.setMaxBounds(californiaBounds);
-mymap.setMinZoom(9); // Set a minimum zoom level
+const texasBounds = [
+  [25.8371, -106.6467], // Southwest coordinates (a point in Texas)
+  [36.5007, -93.5083]  // Northeast coordinates (another point in Texas)
+];
 
-// Disable zooming, including scroll, zoom control, double-click, and pinch
-mymap.scrollWheelZoom.disable();
-mymap.touchZoom.disable();
-if (mymap.tap) mymap.tap.disable(); // Disable tap if present (for mobile)
-mymap.doubleClickZoom.disable();
-mymap.boxZoom.disable();
-mymap.keyboard.disable();
+const coloradoBounds = [
+  [39.1172, -106.4454], // Southwest coordinates (Near Leadville, Colorado)
+  [39.3160, -106.2346] // Northeast coordinates (Near Leadville, Colorado)
+];
 
 const zoomLocationsDropdown = document.getElementById('zoom-locations');
+const defaultView = [40.770116, -73.967909]; // Default coordinates and zoom level
+
+// Set default view initially based on the selected dropdown value
+const initialSelectedValue = zoomLocationsDropdown.value;
+
+switch (initialSelectedValue) {
+  case 'California':
+    mymap.setMaxBounds(californiaBounds);
+    mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+    mymap.setMinZoom(9); // Set minimum zoom for California
+    mymap.options.maxZoom = 9; // Set maximum zoom for California
+    break;
+  case 'Texas':
+    mymap.setMaxBounds(texasBounds);
+    mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
+    mymap.setMinZoom(9); // Set minimum zoom for Texas
+    mymap.options.maxZoom = 9; // Set maximum zoom for Texas
+    break;
+  case 'Colorado':
+    mymap.setMaxBounds(coloradoBounds);
+    mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
+    mymap.setMinZoom(9); // Set minimum zoom for Colorado
+    mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
+    break;
+  default:
+    // Reset to default mode with full zoom functionality
+    mymap.setMaxBounds(null); // Reset maximum bounds
+    mymap.setMinZoom(null); // Reset minimum zoom
+    mymap.options.maxZoom = 18; // Reset maximum zoom
+    mymap.setView(defaultView, 8); // Set default coordinates and zoom level
+    break;
+}
 
 zoomLocationsDropdown.addEventListener('change', function () {
   const selectedLocation = this.value;
 
-  // Set the map view based on the selected location
   switch (selectedLocation) {
     case 'California':
+      mymap.setMaxBounds(californiaBounds);
       mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+      mymap.setMinZoom(9); // Set minimum zoom for California
+      mymap.options.maxZoom = 9; // Set maximum zoom for California
       break;
-    case 'San Diego':
-      mymap.setView([32.7157, -117.1611], 9); // San Diego: Latitude, Longitude, Zoom Level
+    case 'Texas':
+      mymap.setMaxBounds(texasBounds);
+      mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
+      mymap.setMinZoom(9); // Set minimum zoom for Texas
+      mymap.options.maxZoom = 9; // Set maximum zoom for Texas
       break;
-    case 'Los Angeles':
-      mymap.setView([34.0522, -118.2437], 9); // Los Angeles: Latitude, Longitude, Zoom Level
-      break;
-    case 'default':
-      // Add code here to reset the map to its default state with full zoom functionality
-      mymap.setView([40.770116, -73.967909], 8); // Example default view
-      // You can set your desired default view coordinates and zoom level here
+    case 'Colorado':
+      mymap.setMaxBounds(coloradoBounds);
+      mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
+      mymap.setMinZoom(9); // Set minimum zoom for Colorado
+      mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
       break;
     default:
+      // Reset to default mode with full zoom functionality
+      mymap.setMaxBounds(null); // Reset maximum bounds
+      mymap.setMinZoom(null); // Reset minimum zoom
+      mymap.options.maxZoom = 18; // Reset maximum zoom
+      mymap.setView(defaultView, 8); // Set default coordinates and zoom level
       break;
   }
 });
 
-// Initial setup for California (default zoom)
-mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+
+
     </script>
 
     </body>

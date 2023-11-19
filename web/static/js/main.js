@@ -347,7 +347,7 @@ function prepareData(gridData) {
    }
  }
 
-
+console.log(expandedGridData[0][0]);
  return expandedGridData;
 }
 
