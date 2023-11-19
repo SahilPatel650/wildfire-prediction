@@ -1,2 +1,7 @@
 .DS_Store
 *.tfrecord
+training/data
+# ignore all __pycache__ files
+__pycache__/
+# ignore all .pyc files
+*.pycweatherTest.py

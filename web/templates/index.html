@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaflet Map with Drawing</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    #map-container {
+      flex: 1;
+      display: flex;
+      overflow:hidden;
+    }
+    
+    /* CSS */
+    .button-1 {
+      background-color: #011c32;
+      border-radius: 8px;
+      border-style: none;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: inline-block;
+      font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      height: 40px;
+      line-height: 20px;
+      list-style: none;
+      margin: 0;
+      outline: none;
+      padding: 10px 16px;
+      position: relative;
+      text-align: center;
+      text-decoration: none;
+      transition: color 100ms;
+      vertical-align: baseline;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    
+    .button-1:hover,
+    .button-1:focus {
+      background-color: #011c32bf;
+    }
+    
+    #header {
+      text-align: left;
+      color: white;
+      padding: 4px;
+      background: #011c32;
+      position: relative;
+    }
+    
+    #header img{
+      position: absolute;
+      top: 20px; /* Adjust top position */
+      left: 5px; /* Adjust left position */
+      width: 100px; /* Adjust width as needed */
+      height: auto;
+    }
+    #header img.image1{
+      position: absolute;
+      padding-top: 4pt;
+      padding-left: 10px;
+
+      top: -1px;
+      width: 60px; /* Adjust width as needed */
+      height: auto;
+    }
+
+    #header img.image2 {
+      align-items: relative;
+      position: right;
+      top: 20px;
+      left: 1430px; /* Adjust the right position */
+      width: 50px;
+      height: 50%;
+    }
+
+    #header img.image3 {
+      -webkit-filter: invert(1); /* safari 6.0 - 9.0 */
+          filter: invert(1);
+      align-items: relative;
+      position: right;
+      top: 20px;
+      left: 1330px; /* Adjust the right position */
+      width: 80px;
+      height: 50%;
+    }
+
+    #header h1 {
+      margin-left: 100px;
+    }
+    
+    #vstack {
+      flex: 1;
+      display: flex;
+      align-items: center; /* Vertically align items */
+      vertical-align: bottom;
+    }
+    
+    #map {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+  <a href="https://github.com/SahilPatel650/wildfire-prediction" target="_blank">
+    <img class = "image3" src="{{ url_for('static', filename='images/devpost.svg') }}" >
+  </a>
+  <a href="https://github.com/SahilPatel650/wildfire-prediction"  target="_blank"> 
+    <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
+  </a>
+  <a href="blazecast.co"  target="_blank"> 
+    <img class="image1" src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
+  </a>
+    <h1>BlazeCast AI</h1>
+    
+  </div>
+
+      <div id="map-container">
+        <div id="map"></div>
+        <div id="vstack">
+          <button id="run-python" class="button-1" onclick="runPythonScript()">Run Python Script</button>
+          
+          <script>
+            function runPythonScript() {
+                fetch('/run_script')
+                    .then(response => response.text())
+                    .then(data => console.log(data))
+                    .catch(error => console.error('Error:', error));
+            }
+          </script>
+        </div>
+      </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    </body>
+    </html>
