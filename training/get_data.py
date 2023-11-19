@@ -52,32 +52,6 @@ def _parse_fn(example_proto, data_size, sample_size, num_in_channels, include_fr
         )
         features["frp"] = frp_data
 
-    print(features)
-
-    # if include_frp:
-    #     inputs_list.insert(
-    #         0, norm(
-    #             tf.clip_by_value(features.get("elevation"), stats["elevation"]["min"], stats["elevation"]["max"]),
-    #             stats["frp"]["min"],
-    #             stats["frp"]["max"]
-    #         )
-    #     )
-
-    # print(fire_data.shape)
-    # fire_data = tf.clip_by_value(fire_data, stats["PrevFireMask"]["min"], stats["PrevFireMask"]["max"])
-
-    # elev_data = tf.clip_by_value(elev_data, stats["elevation"]["min"], stats["elevation"]["max"]) - stats["elevation"]["min"]
-    # div_val = stats["elevation"]["max"] - stats["elevation"]["min"]
-    # elev_data = tf.math.divide_no_nan(elev_data, div_val)
-    # inputs_list = [elev_data, fire_data]
-
-    # if include_frp:
-    #     frp_data = get_frp_data(fire_data)
-    #     frp_data = tf.clip_by_value(frp_data, stats["frp"]["min"], stats["frp"]["max"]) - stats["frp"]["min"]
-    #     div_val = stats["frp"]["max"] - stats["frp"]["min"]
-    #     frp_data = tf.math.divide_no_nan(frp_data, div_val)
-    #     inputs_list = [inputs_list[0]] + [frp_data] + [inputs_list[1]]
-
     if include_frp:
         input_features.insert(1, "frp")
     inputs_list = [features[key] for key in input_features]
