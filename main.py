@@ -19,6 +19,7 @@ if __name__ == "__main__":
     # Parse the JSON string from the first argument
     grid_data_str = sys.argv[1]
     grid_data = json.loads(grid_data_str)
+    img_path = sys.argv[2]
     #create a 3d array
     data = np.zeros((64, 64, 2))
 
@@ -42,4 +43,4 @@ if __name__ == "__main__":
     print(preds)
     plt.imshow(preds, cmap=colormaps["Reds"])
     # plt.show()
-    plt.savefig("web/static/images/prediction.png", bbox_inches="tight")
+    plt.savefig(img_path, bbox_inches="tight")
