@@ -12,12 +12,13 @@ def generate_3d_array(location_array, API_KEY):
     # Iterate over each cell in the location array
     for i in range(len(location_array)):
         for j in range(len(location_array[i])):
+            
             coordinates = location_array[i][j]
-
             if coordinates is not None:
+                print(coordinates)
                 # If coordinates are present, fetch weather data and update the 7 32x32 arrays
                 elevation_data = get_elevation(coordinates[0], coordinates[1], API_KEY)
-                clicked_data = coordinates[2]
+                clicked_data = coordinates[2] or False
 
                 if elevation_data is not None:
                     three_d_array[i, j, 0] = elevation_data
