@@ -265,18 +265,21 @@ zoomLocationsDropdown.addEventListener('change', function () {
       mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for California
       mymap.options.maxZoom = 9; // Set maximum zoom for California
+      mymap.dragging.disable(); // Disable dragging for California
       break;
     case 'Texas':
       mymap.setMaxBounds(texasBounds);
       mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for Texas
       mymap.options.maxZoom = 9; // Set maximum zoom for Texas
+      mymap.dragging.disable(); // Disable dragging for California
       break;
     case 'Colorado':
       mymap.setMaxBounds(coloradoBounds);
       mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for Colorado
       mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
+      mymap.dragging.disable(); // Disable dragging for California
       break;
     default:
       // Reset to default mode with full zoom functionality
