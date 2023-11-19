@@ -5,9 +5,9 @@ let gridLocked = false; // Flag to lock/unlock the grid
 let gridData = []; // Store latitude, longitude, and selection status for each grid box
 
 // Initialize gridData
-for (let i = 0; i < 64; i++) {
+for (let i = 0; i < 32; i++) {
   gridData[i] = [];
-  for (let j = 0; j < 64; j++) {
+  for (let j = 0; j < 32; j++) {
     gridData[i][j] = {
       lat: null,
       lng: null,
@@ -110,8 +110,8 @@ function createGrid() {
   const northEast = bounds.getNorthEast();
   const southWest = bounds.getSouthWest();
 
-  const gridSizeLat = (northEast.lat - southWest.lat) / 64;
-  const gridSizeLng = (northEast.lng - southWest.lng) / 64;
+  const gridSizeLat = (northEast.lat - southWest.lat) / 32;
+  const gridSizeLng = (northEast.lng - southWest.lng) / 32;
 
   let latitudes = [];
   let longitudes = [];
@@ -140,18 +140,24 @@ function createGrid() {
       }).addTo(mymap);
 
       square.on('click', function () {
+        const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
+        const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
+
         if (!gridLocked) {
-          console.log('clicked at' + lat + ', ' + lng);
-          square.setStyle({ fillColor: 'red' });
-          const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
-          const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
-          gridData[latIndex][lngIndex].selected = true;
+          if (gridData[latIndex][lngIndex].selected) {
+            // If the box is already highlighted, de-highlight it
+            square.setStyle({ fillColor: 'transparent' });
+            gridData[latIndex][lngIndex].selected = false;
+          } else {
+            // If the box is not highlighted, highlight it
+            square.setStyle({ fillColor: 'red' });
+            gridData[latIndex][lngIndex].selected = true;
+          }
         }
       });
 
       square.on('mousemove', function (e) {
         if (isDragging && !gridLocked) {
-          console.log('hovered at' + lat + ', ' + lng);
           square.setStyle({ fillColor: 'red' });
           const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
           const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
@@ -161,7 +167,6 @@ function createGrid() {
 
       square.on('mousedown', function (e) {
         isDragging = true;
-        console.log('started dragging');
         square.fire('mousemove', e); // Manually trigger mousemove event on mousedown
       });
 
@@ -191,6 +196,46 @@ function createGrid() {
     }
   }
 }
+/** *
+// Assuming gridData is a 32x32 array
+// Expand gridData from 32x32 to 64x64
+function expandGridData() {
+  const expandedGridData = [];
+  for (let i = 0; i < 64; i++) {
+    expandedGridData[i] = [];
+    for (let j = 0; j < 64; j++) {
+      expandedGridData[i][j] = {
+        lat: null,
+        lng: null,
+        selected: false,
+      };
+    }
+  }
+
+  // Interpolate and update latitude, longitude, and selected status
+  for (let i = 0; i < 32; i++) {
+    for (let j = 0; j < 32; j++) {
+      const originalLat = gridData[i][j].lat;
+      const originalLng = gridData[i][j].lng;
+      const originalSelected = gridData[i][j].selected;
+
+      for (let k = 0; i < 2; i++) {
+        for (let l = 0; j < 2; j++) {
+          expandedGridData[2*i][2*j].lat = originalLat - 0.072;
+          expandedGridData[2*i][2*j].lng = originalLng - 0.072;
+          expandedGridData[2*i + 1][2*j + 1].lat = originalLat - 0.072;
+          expandedGridData[2*i + 1][2*j + 1].lng = originalLng - 0.072;
+          expandedGridData[2*i][2*j].selected = originalSelected;
+          expandedGridData[2*i + 1][2*j + 1].selected = originalSelected;
+    }
+  }
+}
+
+  // Update gridData with the expanded grid
+  gridData = expandedGridData.slice(0);
+}
+}
+*/
 
 function finalizeGrid() {
   gridLocked = true; // Lock the grid
@@ -229,5 +274,4 @@ function resetMap() {
   gridLocked = false; // Unlock the grid
 }
 console.log(gridData);
-gridData = [...reverseArray(gridData)];
 console.log(gridData);
