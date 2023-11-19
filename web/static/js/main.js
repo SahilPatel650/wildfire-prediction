@@ -5,9 +5,9 @@ let gridLocked = false; // Flag to lock/unlock the grid
 let gridData = []; // Store latitude, longitude, and selection status for each grid box
 
 // Initialize gridData
-for (let i = 0; i < 32; i++) {
+for (let i = 0; i < 64; i++) {
   gridData[i] = [];
-  for (let j = 0; j < 32; j++) {
+  for (let j = 0; j < 64; j++) {
     gridData[i][j] = {
       lat: null,
       lng: null,
@@ -110,8 +110,8 @@ function createGrid() {
   const northEast = bounds.getNorthEast();
   const southWest = bounds.getSouthWest();
 
-  const gridSizeLat = (northEast.lat - southWest.lat) / 32;
-  const gridSizeLng = (northEast.lng - southWest.lng) / 32;
+  const gridSizeLat = (northEast.lat - southWest.lat) / 64;
+  const gridSizeLng = (northEast.lng - southWest.lng) / 64;
 
   let latitudes = [];
   let longitudes = [];
@@ -141,14 +141,45 @@ function createGrid() {
 
       square.on('click', function () {
         if (!gridLocked) {
-          console.log('clicked at' + lat + ', ' + lng)
+          console.log('clicked at' + lat + ', ' + lng);
           square.setStyle({ fillColor: 'red' });
-          // Find the corresponding grid box in gridData and update its selected status
           const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
           const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
           gridData[latIndex][lngIndex].selected = true;
         }
       });
+
+      square.on('mousemove', function (e) {
+        if (isDragging && !gridLocked) {
+          console.log('hovered at' + lat + ', ' + lng);
+          square.setStyle({ fillColor: 'red' });
+          const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
+          const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
+          gridData[latIndex][lngIndex].selected = true;
+        }
+      });
+
+      square.on('mousedown', function (e) {
+        isDragging = true;
+        console.log('started dragging');
+        square.fire('mousemove', e); // Manually trigger mousemove event on mousedown
+      });
+
+      document.addEventListener('mouseup', function () {
+        if (isDragging) {
+          console.log('stopped dragging');
+          isDragging = false;
+        }
+      });
+
+      square.on('mouseover', function () {
+        mymap.dragging.disable(); // Disable map dragging on square mouseover
+      });
+
+      square.on('mouseout', function () {
+        mymap.dragging.enable(); // Enable map dragging on square mouseout
+      });
+
 
       // Store latitude and longitude in gridData
       const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
@@ -200,14 +231,3 @@ function resetMap() {
 console.log(gridData);
 gridData = [...reverseArray(gridData)];
 console.log(gridData);
-
-
-
-
-// document.getElementById('run-python').addEventListener('click', () => {
-//   console.log("Clicked")
-//   fetch('/run_script')
-//                 .then(response => response.json())
-//                 .then(data => console.log(data.result))
-//                 .catch(error => console.error('Error:', error));
-// });
