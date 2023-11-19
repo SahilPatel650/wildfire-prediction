@@ -2,11 +2,6 @@ import requests
 import json
 import os
 import numpy as np
-# Define your Google Elevation API key here
-ELEVATION_API_KEY = "AIzaSyAhtNZsHIYxwfy2Ms5-lxAa9v-tOA_hF78"
-
-# Define your Visual Crossing API key here
-VISUAL_CROSSING_API_KEY = "K47XQXT3QH58XJ6863YB5VAL4"
 
 
 def relative_humidity_to_specific_humidity(temp_celsius, relative_humidity):
@@ -29,7 +24,7 @@ def relative_humidity_to_specific_humidity(temp_celsius, relative_humidity):
     return q
 
 
-def get_elevation(latitude, longitude):
+def get_elevation(latitude, longitude, ELEVATION_API_KEY):
     elevation_url = f"https://maps.googleapis.com/maps/api/elevation/json?locations={latitude},{longitude}&key={ELEVATION_API_KEY}"
     elevation_response = requests.get(elevation_url)
     
@@ -47,7 +42,7 @@ def get_elevation(latitude, longitude):
         return None
 
 
-def get_weather_data(latitude, longitude, start_date, end_date):
+def get_weather_data(latitude, longitude, start_date, end_date, VISUAL_CROSSING_API_KEY):
 
     cache_file = './weather_cache/visualcrossing.json'
     # Load existing cache data
