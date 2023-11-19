@@ -139,7 +139,7 @@ function createGrid() {
         fillColor: 'transparent',
       }).addTo(mymap);
 
-      square.on('click', function () {
+      square.on('mouseup', function () {
         const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
         const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
 
@@ -274,4 +274,17 @@ function resetMap() {
   gridLocked = false; // Unlock the grid
 }
 console.log(gridData);
-console.log(gridData);
+
+
+document.getElementById("run-python").addEventListener('mouseup', () => {
+  fetch('/run_script', {  // Updated URL
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ gridData: gridData }),
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+});

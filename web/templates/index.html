@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Leaflet Map with Drawing</title>
+  <title>BlazeCast - Predict Wildfires</title>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.css" />
   <style>
@@ -124,7 +125,7 @@
   <a href="https://github.com/SahilPatel650/wildfire-prediction"  target="_blank"> 
     <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
   </a>
-  <a href="blazecast.co"  target="_blank"> 
+  <a href="https://blazecast.co"  target="_blank"> 
     <img class="image1" src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
   </a>
     <h1>BlazeCast AI</h1>
@@ -134,16 +135,8 @@
       <div id="map-container">
         <div id="map"></div>
         <div id="vstack">
-          <button id="run-python" class="button-1" onclick="runPythonScript()">Run Python Script</button>
-          
-          <script>
-            function runPythonScript() {
-                fetch('/run_script')
-                    .then(response => response.text())
-                    .then(data => console.log(data))
-                    .catch(error => console.error('Error:', error));
-            }
-          </script>
+          <button id="run-python" class="button-1">Run Python Script</button>
+      
         </div>
       </div>
 
