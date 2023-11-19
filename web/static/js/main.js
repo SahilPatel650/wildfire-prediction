@@ -139,7 +139,7 @@ function createGrid() {
         fillColor: 'transparent',
       }).addTo(mymap);
 
-      square.on('click', function () {
+      square.on('mouseup', function () {
         if (!gridLocked) {
           console.log('clicked at' + lat + ', ' + lng)
           square.setStyle({ fillColor: 'red' });
@@ -203,11 +203,15 @@ console.log(gridData);
 
 
 
-
-// document.getElementById('run-python').addEventListener('click', () => {
-//   console.log("Clicked")
-//   fetch('/run_script')
-//                 .then(response => response.json())
-//                 .then(data => console.log(data.result))
-//                 .catch(error => console.error('Error:', error));
-// });
+document.getElementById("run-python").addEventListener('mouseup', () => {
+  fetch('/run_script', {  // Updated URL
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ gridData: gridData }),
+  })
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+});
