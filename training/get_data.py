@@ -5,86 +5,12 @@ import tensorflow as tf
 INPUT_FEATURES = ['elevation', 'PrevFireMask']
 OUTPUT_FEATURES = ['FireMask']
 
-DATA_STATS = {
-    # Elevation in m.
-    # 0.1 percentile, 99.9 percentile
-    'elevation': (-41.752130, 4355.983, 880.306023, 138.177659),
-    # Pressure
-    # 0.1 percentile, 99.9 percentile
-    'pdsi': (-6.12974870967865, 7.876040384292651, -0.0052714925, 2.6823447),
-    'NDVI': (-9821.0, 9996.0, 5157.625, 2466.6677),  # min, max
-    # Precipitation in mm.
-    # Negative values do not make sense, so min is set to 0.
-    # 0., 99.9 percentile
-    'pr': (0.0, 44.53038024902344, 1.7398051, 4.482833),
-    # Specific humidity.
-    # Negative values do not make sense, so min is set to 0.
-    # The range of specific humidity is up to 100% so max is 1.
-    'sph': (0., 1., 0.0071658953, 0.0042835088),
-    # Wind direction in degrees clockwise from north.
-    # Thus min set to 0 and max set to 360.
-    'th': (0., 360.0, 190.32976, 72.59854),
-    # Min/max temperature in Kelvin.
-    # -20 degree C, 99.9 percentile
-    'tmmn': (253.15, 298.94891357421875, 281.08768, 8.982386),
-    # -20 degree C, 99.9 percentile
-    'tmmx': (253.15, 315.09228515625, 295.17383, 9.815496),
-    # Wind speed in m/s.
-    # Negative values do not make sense, given there is a wind direction.
-    # 0., 99.9 percentile
-    'vs': (0.0, 10.024310074806237, 3.8500874, 1.4109988),
-    # NFDRS fire danger index energy release component expressed in BTU's per
-    # square foot.
-    # Negative values do not make sense. Thus min set to zero.
-    # 0., 99.9 percentile
-    'erc': (0.0, 106.24891662597656, 37.326267, 20.846027),
-    # Population density
-    # min, 99.9 percentile
-    'population': (0., 2534.06298828125, 25.531384, 154.72331),
-    # We don't want to normalize the FireMasks.
-    # 1 indicates fire, 0 no fire, -1 unlabeled data
-    'PrevFireMask': (-1., 1., 0., 1.),
-    'FireMask': (-1., 1., 0., 1.)
+stats = {
+    "elevation": {"min": 563.0764, "max":1328.4357},
+    "frp": {"min": 0.0, "max": 83.63587189},
+    "PrevFireMask": {"min": 0.0, "max": 1.0},
+    "FireMask": {"min": 0.0, "max": 1.0}
 }
-
-def random_crop_input_and_output_images(input_img, output_img, sample_size, num_in_channels, num_out_channels):
-    combined = tf.concat([input_img, output_img], axis=2)
-    combined = tf.image.random_crop(
-        combined,
-        [sample_size, sample_size, num_in_channels + num_out_channels])
-    input_img = combined[:, :, 0:num_in_channels]
-    output_img = combined[:, :, -num_out_channels:]
-    return input_img, output_img
-
-
-def center_crop_input_and_output_images(input_img, output_img, sample_size):
-    central_fraction = sample_size / input_img.shape[0]
-    input_img = tf.image.central_crop(input_img, central_fraction)
-    output_img = tf.image.central_crop(output_img, central_fraction)
-    return input_img, output_img
-
-def _get_base_key(key):
-    match = re.match(r'([a-zA-Z]+)', key)
-    if match:
-        return match.group(1)
-    raise ValueError('The provided key does not match the expected pattern: {}'.format(key))
-
-def _clip_and_rescale(inputs, key):
-    base_key = _get_base_key(key)
-    if base_key not in DATA_STATS:
-        raise ValueError('No data statistics available for the requested key: {}.'.format(key))
-    min_val, max_val, _, _ = DATA_STATS[base_key]
-    inputs = tf.clip_by_value(inputs, min_val, max_val)
-    return tf.math.divide_no_nan((inputs - min_val), (max_val - min_val))
-
-def _clip_and_normalize(inputs, key):
-    base_key = _get_base_key(key)
-    if base_key not in DATA_STATS:
-        raise ValueError('No data statistics available for the requested key: {}.'.format(key))
-    min_val, max_val, mean, std = DATA_STATS[base_key]
-    inputs = tf.clip_by_value(inputs, min_val, max_val)
-    inputs = inputs - mean
-    return tf.math.divide_no_nan(inputs, std)
 
 def _get_features_dict(sample_size, features):
     sample_shape = [sample_size, sample_size]
@@ -94,57 +20,78 @@ def _get_features_dict(sample_size, features):
     ]
     return dict(zip(features, columns))
 
-def _parse_fn(
-    example_proto, data_size, sample_size,
-    num_in_channels, clip_and_normalize,
-    clip_and_rescale, random_crop, center_crop
-):
-    if (random_crop and center_crop):
-        raise ValueError('Cannot have both random_crop and center_crop be True')
-    input_features, output_features = INPUT_FEATURES, OUTPUT_FEATURES
+def get_frp_data(fire_data):
+    frp_data = tf.zeros_like(fire_data)
+    frp_data = frp_data + fire_data
+    frp_data = (frp_data + tf.roll(fire_data, 1, axis=0) + tf.roll(fire_data, -1, axis=0) + tf.roll(fire_data, 1, axis=1) + tf.roll(fire_data, -1, axis=1)) / 50
+    return frp_data
+
+def norm(inp, min_val, max_val):
+    return tf.math.divide_no_nan(inp - min_val, max_val - min_val)
+
+def _parse_fn(example_proto, data_size, sample_size, num_in_channels, include_frp):
+    input_features = ['elevation', 'PrevFireMask']
+    output_features = ['FireMask']
     feature_names = input_features + output_features
     features_dict = _get_features_dict(data_size, feature_names)
     features = tf.io.parse_single_example(example_proto, features_dict)
+    
+    features["PrevFireMask"] = tf.clip_by_value(features["PrevFireMask"], stats["PrevFireMask"]["min"], stats["PrevFireMask"]["max"])
+    features["FireMask"] = tf.clip_by_value(features["FireMask"], stats["FireMask"]["min"], stats["FireMask"]["max"])
+    features["elevation"] = norm(
+        tf.clip_by_value(features["elevation"], stats["elevation"]["min"], stats["elevation"]["max"]),
+        stats["elevation"]["min"],
+        stats["elevation"]["max"]
+    )
+    if include_frp:
+        frp_data = get_frp_data(features["PrevFireMask"])
+        frp_data = norm(
+            tf.clip_by_value(frp_data, stats["frp"]["min"], stats["frp"]["max"]),
+            stats["frp"]["min"],
+            stats["frp"]["max"]
+        )
+        features["frp"] = frp_data
 
-    if clip_and_normalize:
-        inputs_list = [
-        _clip_and_normalize(features.get(key), key) for key in input_features
-    ]
-    elif clip_and_rescale:
-        inputs_list = [
-            _clip_and_rescale(features.get(key), key) for key in input_features
-        ]
-    else:
-        inputs_list = [features.get(key) for key in input_features]
-  
+    print(features)
+
+    # if include_frp:
+    #     inputs_list.insert(
+    #         0, norm(
+    #             tf.clip_by_value(features.get("elevation"), stats["elevation"]["min"], stats["elevation"]["max"]),
+    #             stats["frp"]["min"],
+    #             stats["frp"]["max"]
+    #         )
+    #     )
+
+    # print(fire_data.shape)
+    # fire_data = tf.clip_by_value(fire_data, stats["PrevFireMask"]["min"], stats["PrevFireMask"]["max"])
+
+    # elev_data = tf.clip_by_value(elev_data, stats["elevation"]["min"], stats["elevation"]["max"]) - stats["elevation"]["min"]
+    # div_val = stats["elevation"]["max"] - stats["elevation"]["min"]
+    # elev_data = tf.math.divide_no_nan(elev_data, div_val)
+    # inputs_list = [elev_data, fire_data]
+
+    # if include_frp:
+    #     frp_data = get_frp_data(fire_data)
+    #     frp_data = tf.clip_by_value(frp_data, stats["frp"]["min"], stats["frp"]["max"]) - stats["frp"]["min"]
+    #     div_val = stats["frp"]["max"] - stats["frp"]["min"]
+    #     frp_data = tf.math.divide_no_nan(frp_data, div_val)
+    #     inputs_list = [inputs_list[0]] + [frp_data] + [inputs_list[1]]
+
+    if include_frp:
+        input_features.insert(1, "frp")
+    inputs_list = [features[key] for key in input_features]
     inputs_stacked = tf.stack(inputs_list, axis=0)
     input_img = tf.transpose(inputs_stacked, [1, 2, 0])
 
-    outputs_list = [features.get(key) for key in output_features]
-    assert outputs_list, 'outputs_list should not be empty'
+    outputs_list = [features[key] for key in output_features]
     outputs_stacked = tf.stack(outputs_list, axis=0)
-
-    outputs_stacked_shape = outputs_stacked.get_shape().as_list()
-    assert len(outputs_stacked.shape) == 3,('outputs_stacked should be rank 3'
-                                            'but dimensions of outputs_stacked'
-                                            f' are {outputs_stacked_shape}')
     output_img = tf.transpose(outputs_stacked, [1, 2, 0])
-
-    if random_crop:
-        input_img, output_img = random_crop_input_and_output_images(input_img, output_img, sample_size, num_in_channels, 1)
-    if center_crop:
-        input_img, output_img = center_crop_input_and_output_images(input_img, output_img, sample_size)
-    output_img = tf.reshape(output_img, [-1])
-    output_img = tf.map_fn(lambda x:0.0 if x < 0 else x, output_img)
-    output_img = tf.reshape(output_img, (64, 64, 1))
+    
     return input_img, output_img
 
 def get_dataset(file_pattern, data_size, sample_size,
-                batch_size, num_in_channels, compression_type,
-                clip_and_normalize, clip_and_rescale,
-                random_crop, center_crop):
-    if (clip_and_normalize and clip_and_rescale):
-        raise ValueError('Cannot have both normalize and rescale.')
+                batch_size, num_in_channels, compression_type, include_frp):
     dataset = tf.data.Dataset.list_files(file_pattern)
     dataset = dataset.interleave(
         lambda x: tf.data.TFRecordDataset(x, compression_type=compression_type),
@@ -152,11 +99,22 @@ def get_dataset(file_pattern, data_size, sample_size,
     )
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     dataset = dataset.map(
-        lambda x: _parse_fn(  # pylint: disable=g-long-lambda
-            x, data_size, sample_size, num_in_channels, clip_and_normalize,
-            clip_and_rescale, random_crop, center_crop),
+        lambda x: _parse_fn(
+            x, data_size, sample_size, num_in_channels, include_frp),
         num_parallel_calls=tf.data.experimental.AUTOTUNE
     )
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     return dataset
+
+if __name__ == "__main__":
+    dataset = get_dataset(
+        "./data/next_day_wildfire_spread_eval*",
+        data_size=64,
+        sample_size=64,
+        batch_size=100,
+        num_in_channels=2,
+        compression_type=None,
+        include_frp=True
+    )
+    print(np.unique(next(iter(dataset))[0].numpy()[0, :, :, -1]))
