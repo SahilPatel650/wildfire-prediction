@@ -52,7 +52,7 @@ def get_elevation(latitude, longitude, ELEVATION_API_KEY):
     try:
         elevation_result = elevation_data['results'][0]['elevation']
         cache[cache_key] = elevation_result
-        with open(cache_file, 'w') as file:
+        with open(cache_file, 'a') as file:
             json.dump(cache, file)
 
         return elevation_result
@@ -98,7 +98,7 @@ def get_weather_data(latitude, longitude, start_date, end_date, VISUAL_CROSSING_
         }
 
         cache[cache_key] = extracted_data
-        with open(cache_file, 'w') as file:
+        with open(cache_file, 'a') as file:
             json.dump(cache, file)
 
         return extracted_data
