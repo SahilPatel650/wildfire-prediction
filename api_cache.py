@@ -74,13 +74,7 @@ def get_weather_data(latitude, longitude, start_date, end_date, VISUAL_CROSSING_
     try:
         # Extract the desired fields from the API response
         extracted_data = {
-            "elevation": get_elevation(latitude, longitude),
-            "winddir": weather_data['days'][0]['winddir'],
-            "windspeed": weather_data['days'][0]['windspeed']/ 3.6,
-            "tempmin": weather_data['days'][0]['tempmin'] + 273.15,
-            "tempmax": weather_data['days'][0]['tempmax'] + 273.15,
-            "humidity": relative_humidity_to_specific_humidity(weather_data['days'][0]['tempmax'], weather_data['days'][0]['humidity']),
-            "precip": weather_data['days'][0]['precip'],
+            "elevation": get_elevation(latitude, longitude)
         }
 
         cache[cache_key] = extracted_data
