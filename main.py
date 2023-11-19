@@ -22,10 +22,6 @@ if __name__ == "__main__":
     #create a 3d array
     data = np.zeros((64, 64, 2))
 
-    #dump the data into json file
-    with open('grid_data.json', 'w') as outfile:
-        json.dump(grid_data, outfile)
-
     # Convert the JSON data into the 2D array
     for i in range(64):
         for j in range(64):
