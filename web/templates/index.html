@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>BlazeCast - Predict Wildfires</title>
-  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <title>Leaflet Map with Drawing</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.css" />
   <style>
@@ -15,7 +14,7 @@
       height: 100vh;
       font-family: Arial, sans-serif;
     }
-
+    
     #map-container {
       flex: 1;
       display: flex;
@@ -24,58 +23,58 @@
     
     /* CSS */
     .button-1 {
-  background-color: #011c32;
-  position: absolute;
-  top: 10px; /* Adjust the top position */
-  right: 50%; /* Place it at the horizontal center of the right half */
-  transform: translateX(50%); /* Center the button horizontally */
-  border-radius: 8px;
-  border-style: none;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  height: 40px;
-  line-height: 40px; /* Adjust line-height to vertically center text */
-  margin: 0;
-  outline: none;
-  padding: 0 20px; /* Add padding for text */
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.3s, color 0.3s;
-}
+      background-color: #011c32;
+      position: absolute;
+      top: 10px; /* Adjust the top position */
+      right: 50%; /* Place it at the horizontal center of the right half */
+      transform: translateX(50%); /* Center the button horizontally */
+      border-radius: 8px;
+      border-style: none;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      cursor: pointer;
+      font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      height: 40px;
+      line-height: 40px; /* Adjust line-height to vertically center text */
+      margin: 0;
+      outline: none;
+      padding: 0 20px; /* Add padding for text */
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
     
     .button-1:hover,
     .button-1:focus {
       background-color: #011c32bf;
     }
-
+    
     .button-2 {
-  background-color: #011c32;
-  position: absolute;
-  top: 40px; /* Adjust the top position */
-  right: 50%; /* Place it at the horizontal center of the right half */
-  transform: translateX(50%); /* Center the button horizontally */
-  border-radius: 8px;
-  border-style: none;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  height: 40px;
-  line-height: 40px; /* Adjust line-height to vertically center text */
-  margin: 0;
-  outline: none;
-  padding: 0 20px; /* Add padding for text */
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.3s, color 0.3s;
-}
-
+      background-color: #011c32;
+      position: absolute;
+      top: 40px; /* Adjust the top position */
+      right: 50%; /* Place it at the horizontal center of the right half */
+      transform: translateX(50%); /* Center the button horizontally */
+      border-radius: 8px;
+      border-style: none;
+      box-sizing: border-box;
+      color: #FFFFFF;
+      cursor: pointer;
+      font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      height: 40px;
+      line-height: 40px; /* Adjust line-height to vertically center text */
+      margin: 0;
+      outline: none;
+      padding: 0 20px; /* Add padding for text */
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
     
     #header {
       text-align: left;
@@ -96,12 +95,12 @@
       position: absolute;
       padding-top: 4pt;
       padding-left: 10px;
-
+      
       top: -1px;
       width: 60px; /* Adjust width as needed */
       height: auto;
     }
-
+    
     #header img.image2 {
       align-items: relative;
       position: right;
@@ -110,18 +109,17 @@
       width: 50px;
       height: 50%;
     }
-
+    
     #header img.image3 {
       -webkit-filter: invert(1); /* safari 6.0 - 9.0 */
-          filter: invert(1);
       align-items: relative;
       position: right;
       top: 20px;
-      left: 1330px; /* Adjust the right position */
-      width: 80px;
+      left: 1360px; /* Adjust the right position */
+      width: 50px;
       height: 50%;
     }
-
+    
     #header h1 {
       margin-left: 100px;
     }
@@ -136,8 +134,8 @@
     #map {
       flex: 1;
     }
-
-
+    
+    
     .loading-container {
       display: none; /* Hide the loading container initially */
       position: absolute;
@@ -150,16 +148,27 @@
       padding: 20px;
       text-align: center;
     }
-
-    .loading {
-      border: 5px solid #3498db;
-      border-top: 5px solid black;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 2s linear infinite;
+    
+    .container {
+      padding: 20px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      position: relative;
+      justify-content: flex-end;
+      align-items: center;
     }
-
+    
+    .right-half {
+      max-width: 100%; /* Set the image to be a maximum of half the width of the container */
+      height: auto;
+    }
+    
+    
+    .output {
+      margin-top: 10px;
+    }
+    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -167,28 +176,27 @@
   </style>
 </head>
 <body>
-
+  
   <div id="header">
-  <a href="https://devpost.com/software/blazecast?ref_content=user-portfolio&ref_feature=in_progress" target="_blank">
-    <img class = "image3" src="{{ url_for('static', filename='images/devpost.svg') }}" >
-  </a>
-  <a href="https://github.com/SahilPatel650/wildfire-prediction"  target="_blank"> 
-    <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
-  </a>
-  <a href="https://blazecast.co"  target="_blank"> 
-    <img class="image1" src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
-  </a>
+    <a href="https://devpost.com/software/blazecast" target="_blank">
+      <img class = "image3" src="{{ url_for('static', filename='images/devpost.svg') }}" >
+    </a>
+    <a href="https://github.com/SahilPatel650/wildfire-prediction"  target="_blank"> 
+      <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
+    </a>
+    <a href="https://blazecast.co"  target="_blank"> 
+      <img class="image1" src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
+    </a>
     <h1>BlazeCast AI</h1>
     
   </div>
-
+  
   <div id="map-container">
     <div id="map"></div>
     <div id="vstack">
-      <button id="run-python" class="button-1">Run Python Script</button>
-      <div class="loading-container">
-        <div class="loading"></div>
-        <div class="output"></div>
+      <button id="run-python" class="button-1" onclick="finalize()">Run Python Script</button>
+      <div class="container">
+        <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="Your Image" class="right-half">
       </div>
       <!-- Dropdown added here -->
       <select id="zoom-locations" class="button-2">
@@ -201,100 +209,100 @@
       <!-- End of Dropdown -->
     </div>
   </div>
-
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  
+  
+  <script>
+    const californiaBounds = [
+    [32.5343, -124.4096], // Southwest coordinates
+    [42.0095, -114.1308]  // Northeast coordinates
+    ];
     
+    const texasBounds = [
+    [25.8371, -106.6467], // Southwest coordinates (a point in Texas)
+    [36.5007, -93.5083]  // Northeast coordinates (another point in Texas)
+    ];
     
-    <script>
-     const californiaBounds = [
-  [32.5343, -124.4096], // Southwest coordinates
-  [42.0095, -114.1308]  // Northeast coordinates
-];
-
-const texasBounds = [
-  [25.8371, -106.6467], // Southwest coordinates (a point in Texas)
-  [36.5007, -93.5083]  // Northeast coordinates (another point in Texas)
-];
-
-const coloradoBounds = [
-  [39.1172, -106.4454], // Southwest coordinates (Near Leadville, Colorado)
-  [39.3160, -106.2346] // Northeast coordinates (Near Leadville, Colorado)
-];
-
-const zoomLocationsDropdown = document.getElementById('zoom-locations');
-const defaultView = [40.770116, -73.967909]; // Default coordinates and zoom level
-
-// Set default view initially based on the selected dropdown value
-const initialSelectedValue = zoomLocationsDropdown.value;
-
-switch (initialSelectedValue) {
-  case 'California':
-    mymap.setMaxBounds(californiaBounds);
-    mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
-    mymap.setMinZoom(9); // Set minimum zoom for California
-    mymap.options.maxZoom = 9; // Set maximum zoom for California
-    break;
-  case 'Texas':
-    mymap.setMaxBounds(texasBounds);
-    mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
-    mymap.setMinZoom(9); // Set minimum zoom for Texas
-    mymap.options.maxZoom = 9; // Set maximum zoom for Texas
-    break;
-  case 'Colorado':
-    mymap.setMaxBounds(coloradoBounds);
-    mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
-    mymap.setMinZoom(9); // Set minimum zoom for Colorado
-    mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
-    break;
-  default:
-    // Reset to default mode with full zoom functionality
-    mymap.setMaxBounds(null); // Reset maximum bounds
-    mymap.setMinZoom(null); // Reset minimum zoom
-    mymap.options.maxZoom = 18; // Reset maximum zoom
-    mymap.setView(defaultView, 8); // Set default coordinates and zoom level
-    break;
-}
-
-zoomLocationsDropdown.addEventListener('change', function () {
-  const selectedLocation = this.value;
-
-  switch (selectedLocation) {
-    case 'California':
+    const coloradoBounds = [
+    [39.1172, -106.4454], // Southwest coordinates (Near Leadville, Colorado)
+    [39.3160, -106.2346] // Northeast coordinates (Near Leadville, Colorado)
+    ];
+    
+    const zoomLocationsDropdown = document.getElementById('zoom-locations');
+    const defaultView = [40.770116, -73.967909]; // Default coordinates and zoom level
+    
+    // Set default view initially based on the selected dropdown value
+    const initialSelectedValue = zoomLocationsDropdown.value;
+    
+    switch (initialSelectedValue) {
+      case 'California':
       mymap.setMaxBounds(californiaBounds);
       mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for California
       mymap.options.maxZoom = 9; // Set maximum zoom for California
-      mymap.dragging.disable(); // Disable dragging for California
       break;
-    case 'Texas':
+      case 'Texas':
       mymap.setMaxBounds(texasBounds);
       mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for Texas
       mymap.options.maxZoom = 9; // Set maximum zoom for Texas
-      mymap.dragging.disable(); // Disable dragging for California
       break;
-    case 'Colorado':
+      case 'Colorado':
       mymap.setMaxBounds(coloradoBounds);
       mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
       mymap.setMinZoom(9); // Set minimum zoom for Colorado
       mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
-      mymap.dragging.disable(); // Disable dragging for California
       break;
-    default:
+      default:
       // Reset to default mode with full zoom functionality
       mymap.setMaxBounds(null); // Reset maximum bounds
       mymap.setMinZoom(null); // Reset minimum zoom
       mymap.options.maxZoom = 18; // Reset maximum zoom
       mymap.setView(defaultView, 8); // Set default coordinates and zoom level
       break;
-  }
-});
-
-
-
-    </script>
-
-    </body>
-    </html>
+    }
+    
+    zoomLocationsDropdown.addEventListener('change', function () {
+      const selectedLocation = this.value;
+      
+      switch (selectedLocation) {
+        case 'California':
+        mymap.setMaxBounds(californiaBounds);
+        mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+        mymap.setMinZoom(9); // Set minimum zoom for California
+        mymap.options.maxZoom = 9; // Set maximum zoom for California
+        mymap.dragging.disable(); // Disable dragging for California
+        break;
+        case 'Texas':
+        mymap.setMaxBounds(texasBounds);
+        mymap.setView([30.9686, -99.9018], 9); // Center of Texas: Latitude, Longitude, Zoom Level
+        mymap.setMinZoom(9); // Set minimum zoom for Texas
+        mymap.options.maxZoom = 9; // Set maximum zoom for Texas
+        mymap.dragging.disable(); // Disable dragging for California
+        break;
+        case 'Colorado':
+        mymap.setMaxBounds(coloradoBounds);
+        mymap.setView([39.2500, -106.2925], 9); // Center of Colorado: Latitude, Longitude, Zoom Level
+        mymap.setMinZoom(9); // Set minimum zoom for Colorado
+        mymap.options.maxZoom = 9; // Set maximum zoom for Colorado
+        mymap.dragging.disable(); // Disable dragging for California
+        break;
+        default:
+        // Reset to default mode with full zoom functionality
+        mymap.setMaxBounds(null); // Reset maximum bounds
+        mymap.setMinZoom(null); // Reset minimum zoom
+        mymap.options.maxZoom = 18; // Reset maximum zoom
+        mymap.setView(defaultView, 8); // Set default coordinates and zoom level
+        break;
+      }
+    });
+    
+    
+    
+  </script>
+  
+</body>
+</html>

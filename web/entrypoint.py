@@ -15,9 +15,8 @@ def run_script():
     letters = string.ascii_uppercase
     random_string = ''.join(random.choice(letters) for i in range(8))
     #make it into a filepath for a jpg
-    filepath = "web/uploads/" + random_string + ".png"
-    print(filepath)
-
+    filepath = "uploads/" + random_string + ".png"
+    filepath= "uploads/image.png"
 
     data = request.json
     grid_data = data['gridData']
@@ -28,6 +27,10 @@ def run_script():
     # Code to execute your Python script
     # subprocess.run(["python3", "main.py", grid_data_str, filepath])  # Replace 'your_script.py' with your actual script name
     return jsonify({'filepath': filepath})
+
+@app.route('/uploads/<path:path>')
+def send_js(path):
+    return send_from_directory('web/uploads/', path)
 
 if __name__ == '__main__':
     app.run(debug=True)

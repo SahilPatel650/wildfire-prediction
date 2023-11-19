@@ -292,6 +292,10 @@ function prepareData(gridData) {
   console.log(expandedGridData[0][0]);
   return expandedGridData;
 }
+// create a function to change the image src to the output of the python script
+function changeImageSrc(filepath) {
+  document.getElementById("right-half").src = filepath;
+}
 
 document.getElementById("run-python").addEventListener("mouseup", () => {
   let reversedGridData = prepareData(gridData);
