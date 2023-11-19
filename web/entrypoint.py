@@ -16,7 +16,9 @@ def run_script():
     letters = string.ascii_uppercase
     random_string = ''.join(random.choice(letters) for i in range(8))
     #make it into a filepath for a jpg
-    filepath = "{{ url_for('static', filename='uploads/"+ "image" + ".png') }}"
+    # filepath = "{{ url_for('static', filename='uploads/"+ "image" + ".png') }}"
+    # filepath = "{{ url_for('static', filename='uploads/" + "image.png'" + ") }}"
+    filepath = "{{ url_for('static', filename='uploads/image.png') }}"
     print(filepath)
 
     data = request.json
