@@ -310,6 +310,6 @@ document.getElementById("run-python").addEventListener("mouseup", () => {
     body: JSON.stringify({ gridData: reversedGridData }),
   })
     .then((response) => response.json())
-    .then((data) => console.log("Output:", data['filepath']))
+    .then((data) => changeImageSrc(data['filepath']))
     .catch((error) => console.error("Error:", error));
 });

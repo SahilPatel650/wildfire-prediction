@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    
     return render_template('index.html')
 
 @app.route('/run_script', methods=['POST'])
@@ -15,22 +16,19 @@ def run_script():
     letters = string.ascii_uppercase
     random_string = ''.join(random.choice(letters) for i in range(8))
     #make it into a filepath for a jpg
-    filepath = "uploads/" + random_string + ".png"
-    filepath= "uploads/image.png"
+    filepath = "{{ url_for('static', filename='uploads/"+ "image" + ".png') }}"
+    print(filepath)
 
     data = request.json
     grid_data = data['gridData']
     grid_data_str = json.dumps(grid_data)
-    # print(grid_data)
+
 
     import subprocess
     # Code to execute your Python script
-    # subprocess.run(["python3", "main.py", grid_data_str, filepath])  # Replace 'your_script.py' with your actual script name
+    subprocess.run(["python3", "main.py", grid_data_str, filepath])
     return jsonify({'filepath': filepath})
 
-@app.route('/uploads/<path:path>')
-def send_js(path):
-    return send_from_directory('web/uploads/', path)
 
 if __name__ == '__main__':
     app.run(debug=True)
