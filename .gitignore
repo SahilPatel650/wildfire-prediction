@@ -5,5 +5,5 @@ training/data
 __pycache__/
 # ignore all .pyc files
 *.pycweatherTest.py
-grid_data.json
-
+training/.ipynb_checkpoints
+training/.virtual_documents/inference.ipynb

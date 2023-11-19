@@ -1,4 +1,5 @@
-const apiKey = 'pk.eyJ1IjoiYWxmcmVkMjAxNiIsImEiOiJja2RoMHkyd2wwdnZjMnJ0MTJwbnVmeng5In0.E4QbAFjiWLY8k3AFhDtErA';
+const apiKey =
+  "pk.eyJ1IjoiYWxmcmVkMjAxNiIsImEiOiJja2RoMHkyd2wwdnZjMnJ0MTJwbnVmeng5In0.E4QbAFjiWLY8k3AFhDtErA";
 let userLocation = null;
 let gridSquares = []; // Keep track of created grid squares
 let gridLocked = false; // Flag to lock/unlock the grid
@@ -16,26 +17,28 @@ for (let i = 0; i < 32; i++) {
   }
 }
 
-const mymap = L.map('map').setView([40.770116, -73.967909], 8); // Default zoom level
+const mymap = L.map("map").setView([40.770116, -73.967909], 8); // Default zoom level
 
+L.tileLayer(
+  "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+  {
+    maxZoom: 18,
+    id: "mapbox/streets-v11",
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: apiKey,
+  },
+).addTo(mymap);
 
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-  maxZoom: 18,
-  id: 'mapbox/streets-v11',
-  tileSize: 512,
-  zoomOffset: -1,
-  accessToken: apiKey,
-}).addTo(mymap);
-
-const finalizeButton = L.control({ position: 'bottomleft' });
-const resetButton = L.control({ position: 'bottomleft' });
-const zoomInButton = L.control({ position: 'bottomleft' });
-const gridButton = L.control({ position: 'bottomleft' });
+const finalizeButton = L.control({ position: "bottomleft" });
+const resetButton = L.control({ position: "bottomleft" });
+const zoomInButton = L.control({ position: "bottomleft" });
+const gridButton = L.control({ position: "bottomleft" });
 
 finalizeButton.onAdd = function () {
-  const container = L.DomUtil.create('div');
-  const button = L.DomUtil.create('button', '', container);
-  button.innerHTML = 'Finalize';
+  const container = L.DomUtil.create("div");
+  const button = L.DomUtil.create("button", "", container);
+  button.innerHTML = "Finalize";
   button.onclick = function () {
     finalizeGrid();
   };
@@ -43,9 +46,9 @@ finalizeButton.onAdd = function () {
 };
 
 resetButton.onAdd = function () {
-  const container = L.DomUtil.create('div');
-  const button = L.DomUtil.create('button', '', container);
-  button.innerHTML = 'Reset';
+  const container = L.DomUtil.create("div");
+  const button = L.DomUtil.create("button", "", container);
+  button.innerHTML = "Reset";
   button.onclick = function () {
     resetMap();
   };
@@ -53,9 +56,9 @@ resetButton.onAdd = function () {
 };
 
 zoomInButton.onAdd = function () {
-  const container = L.DomUtil.create('div');
-  const button = L.DomUtil.create('button', '', container);
-  button.innerHTML = 'Zoom In';
+  const container = L.DomUtil.create("div");
+  const button = L.DomUtil.create("button", "", container);
+  button.innerHTML = "Zoom In";
   button.onclick = function () {
     if (userLocation) {
       zoomToArea(userLocation);
@@ -66,9 +69,9 @@ zoomInButton.onAdd = function () {
 };
 
 gridButton.onAdd = function () {
-  const container = L.DomUtil.create('div');
-  const button = L.DomUtil.create('button', '', container);
-  button.innerHTML = 'Create Grid';
+  const container = L.DomUtil.create("div");
+  const button = L.DomUtil.create("button", "", container);
+  button.innerHTML = "Create Grid";
   button.onclick = function () {
     if (userLocation && !gridLocked) {
       createGrid();
@@ -82,14 +85,14 @@ resetButton.addTo(mymap);
 zoomInButton.addTo(mymap);
 gridButton.addTo(mymap);
 
-mymap.on('click', function (e) {
+mymap.on("click", function (e) {
   userLocation = e.latlng;
 });
 
 function zoomToArea(location) {
   const bounds = L.latLngBounds(
     [location.lat - 0.144, location.lng - 0.144], // Adjusted for 32km (0.144 is ~32km at latitude 40)
-    [location.lat + 0.144, location.lng + 0.144]
+    [location.lat + 0.144, location.lng + 0.144],
   );
 
   mymap.fitBounds(bounds);
@@ -135,57 +138,56 @@ function createGrid() {
       ];
 
       const square = L.polygon(polygonPoints, {
-        color: 'black',
+        color: "black",
         weight: 1,
-        fillColor: 'transparent',
+        fillColor: "transparent",
       }).addTo(mymap);
 
-      square.on('click', function () {
+      square.on("click", function () {
         const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
         const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
 
         if (!gridLocked) {
           if (gridData[latIndex][lngIndex].selected) {
             // If the box is already highlighted, de-highlight it
-            square.setStyle({ fillColor: 'transparent' });
+            square.setStyle({ fillColor: "transparent" });
             gridData[latIndex][lngIndex].selected = false;
           } else {
             // If the box is not highlighted, highlight it
-            square.setStyle({ fillColor: 'red' });
+            square.setStyle({ fillColor: "red" });
             gridData[latIndex][lngIndex].selected = true;
           }
         }
       });
 
-      square.on('mousemove', function (e) {
+      square.on("mousemove", function (e) {
         if (isDragging && !gridLocked) {
-          square.setStyle({ fillColor: 'red' });
+          square.setStyle({ fillColor: "red" });
           const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
           const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
           gridData[latIndex][lngIndex].selected = true;
         }
       });
 
-      square.on('mousedown', function (e) {
+      square.on("mousedown", function (e) {
         isDragging = true;
-        square.fire('mousemove', e); // Manually trigger mousemove event on mousedown
+        square.fire("mousemove", e); // Manually trigger mousemove event on mousedown
       });
 
-      document.addEventListener('click', function () {
+      document.addEventListener("click", function () {
         if (isDragging) {
-          console.log('stopped dragging');
+          console.log("stopped dragging");
           isDragging = false;
         }
       });
 
-      square.on('mouseover', function () {
+      square.on("mouseover", function () {
         mymap.dragging.disable(); // Disable map dragging on square mouseover
       });
 
-      square.on('mouseout', function () {
+      square.on("mouseout", function () {
         mymap.dragging.enable(); // Enable map dragging on square mouseout
       });
-
 
       // Store latitude and longitude in gridData
       const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
@@ -197,7 +199,6 @@ function createGrid() {
     }
   }
 }
-
 
 function finalizeGrid() {
   gridLocked = true; // Lock the grid
@@ -214,9 +215,6 @@ function resetGridData() {
     }
   }
 }
-
-
-
 
 function resetMap() {
   // Reset the map to its original state
@@ -284,18 +282,19 @@ function prepareData(gridData) {
   return expandedGridData;
 }
 
-document.getElementById("run-python").addEventListener('mouseup', () => {
+document.getElementById("run-python").addEventListener("mouseup", () => {
   let reversedGridData = prepareData(gridData);
   console.log(reversedGridData);
 
-  fetch('/run_script', {  // Updated URL
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ gridData: reversedGridData }),
+  fetch("/run_script", {
+    // Updated URL
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ gridData: reversedGridData }),
   })
-  .then(response => response.json())
-  .then(data => console.log('Success:', data))
-  .catch(error => console.error('Error:', error));
+    .then((response) => response.json())
+    .then((data) => console.log("Success:", data))
+    .catch((error) => console.error("Error:", error));
 });

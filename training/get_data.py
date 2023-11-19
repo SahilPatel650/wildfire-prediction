@@ -6,7 +6,7 @@ INPUT_FEATURES = ['elevation', 'PrevFireMask']
 OUTPUT_FEATURES = ['FireMask']
 
 stats = {
-    "elevation": {"min": 563.0764, "max":1328.4357},
+    "elevation": {"min": 563.0764, "max": 1328.4357},
     "frp": {"min": 0.0, "max": 83.63587189},
     "PrevFireMask": {"min": 0.0, "max": 1.0},
     "FireMask": {"min": 0.0, "max": 1.0}
