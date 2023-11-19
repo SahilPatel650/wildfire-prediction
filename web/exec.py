@@ -16,6 +16,7 @@ if __name__ == "__main__":
     grid_data_str = sys.argv[1]
     grid_data = json.loads(grid_data_str)
     data = np.zeros((64, 64, 2)) # replace with elevation, fire_mask data
+    data[0] = ai_utils.normalize(data[0])
     model = ai_utils.get_model((64, 64, 2))
     model.load_weights("web/model.h5")
     preds = model_inference(data, model)

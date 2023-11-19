@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 
 def bn_act(x, act=True):
@@ -68,3 +69,12 @@ def get_model(input_shape):
     outputs = tf.keras.layers.Conv2D(1, (1, 1), padding="same", activation="sigmoid")(d4)
     model = tf.keras.models.Model(inputs, outputs)
     return model
+
+def normalize_elevation(elev):
+    min_val, max_val = 563.0764, 1328.4357
+    return np.divide(
+        np.clip(elev, min_val, max_val) - min_val,
+        max_val - min_val,
+        out=np.zeros_like(elev),
+        where=(max_val - min_val)!=0
+    )
