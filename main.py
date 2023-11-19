@@ -6,6 +6,14 @@ import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import ai_utils
 
+def model_inference(data, model):
+    preds = model.predict(np.expand_dims(data, axis=0))
+    preds = np.squeeze(preds)
+    preds = np.clip(preds, 0, 1)
+    # for i in range(len(preds)):
+    #     preds[i] = list(map(lambda x: {"selection": x}, preds[i]))
+    return preds
+
 if __name__ == "__main__":
     API_KEY = json.load(open('api_key.json'))['ELEVATION_API_KEY']
     # Parse the JSON string from the first argument
@@ -27,16 +35,15 @@ if __name__ == "__main__":
             lng = arr['lng']
 
             selected = arr['selected']
-            print(i, j, lat, lng, selected)
             weather_data = get_elevation(lat, lng, API_KEY)
             data[i, j, 0] = weather_data
             data[i, j, 1] = selected
 
     data[0] = ai_utils.normalize_elevation(data[0])
     model = ai_utils.get_model((64, 64, 2))
-    model.load_weights("training/models/model.h5")
+    model.load_weights("training/models/no_frp_model.h5")
     preds = model_inference(data, model)
     print(preds)
     plt.imshow(preds, cmap=colormaps["Reds"])
-    plt.show()
-    plt.save_fig("web/static/images/prediction.png", bbox_inches="tight")
+    # plt.show()
+    plt.savefig("web/static/images/prediction.png", bbox_inches="tight")

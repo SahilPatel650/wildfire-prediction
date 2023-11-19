@@ -36,7 +36,6 @@ def get_elevation(latitude, longitude, ELEVATION_API_KEY):
 
     # Check if data is in cache
     if cache_key in cache:
-        print("Fetching from cache")
         return cache[cache_key]
 
 
