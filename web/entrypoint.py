@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, url_for
 import json
 
 app = Flask(__name__)
@@ -15,10 +15,7 @@ def run_script():
     import string
     letters = string.ascii_uppercase
     random_string = ''.join(random.choice(letters) for i in range(8))
-    #make it into a filepath for a jpg
-    # filepath = "{{ url_for('static', filename='uploads/"+ "image" + ".png') }}"
-    # filepath = "{{ url_for('static', filename='uploads/" + "image.png'" + ") }}"
-    filepath = "{{ url_for('static', filename='uploads/image.png') }}"
+    filepath = random_string + '.png'
     print(filepath)
 
     data = request.json
@@ -30,6 +27,21 @@ def run_script():
     # Code to execute your Python script
     subprocess.run(["python3", "main.py", grid_data_str, filepath])
     return jsonify({'filepath': filepath})
+
+@app.route('/get_dynamic_image')
+def get_dynamic_image():
+    # Your logic to determine the image
+    image_filename = 'uploads/image.png'
+    return url_for('static', filename=image_filename)
+
+
+@app.route('/uploads/<path>')
+def get_upload(path):
+    # Your logic to determine the image
+    fn = 'uploads/' + path
+    print(fn)
+    return url_for('static', filename=fn)
+
 
 
 if __name__ == '__main__':

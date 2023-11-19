@@ -294,12 +294,22 @@ function prepareData(gridData) {
 }
 // create a function to change the image src to the output of the python script
 function changeImageSrc(filepath) {
-  document.getElementById("right-half").src = filepath;
+  console.log(filepath)
+  fetch('/uploads/' + filepath)
+      .then(response => response.text())
+      .then(newImageSrc => {
+          document.getElementById('output-image').src = newImageSrc;
+      })
+      .catch(error => console.error('Error:', error));
 }
+
+
 
 document.getElementById("run-python").addEventListener("mouseup", () => {
   let reversedGridData = prepareData(gridData);
   console.log(reversedGridData);
+
+
 
   fetch("/run_script", {
     // Updated URL
