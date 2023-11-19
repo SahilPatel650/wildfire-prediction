@@ -23,36 +23,58 @@
     
     /* CSS */
     .button-1 {
-      background-color: #011c32;
-      border-radius: 8px;
-      border-style: none;
-      box-sizing: border-box;
-      color: #FFFFFF;
-      cursor: pointer;
-      display: inline-block;
-      font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      height: 40px;
-      line-height: 20px;
-      list-style: none;
-      margin: 0;
-      outline: none;
-      padding: 10px 16px;
-      position: relative;
-      text-align: center;
-      text-decoration: none;
-      transition: color 100ms;
-      vertical-align: baseline;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
-    }
+  background-color: #011c32;
+  position: absolute;
+  top: 10px; /* Adjust the top position */
+  right: 50%; /* Place it at the horizontal center of the right half */
+  transform: translateX(50%); /* Center the button horizontally */
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 40px; /* Adjust line-height to vertically center text */
+  margin: 0;
+  outline: none;
+  padding: 0 20px; /* Add padding for text */
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
     
     .button-1:hover,
     .button-1:focus {
       background-color: #011c32bf;
     }
+
+    .button-2 {
+  background-color: #011c32;
+  position: absolute;
+  top: 40px; /* Adjust the top position */
+  right: 50%; /* Place it at the horizontal center of the right half */
+  transform: translateX(50%); /* Center the button horizontally */
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 40px; /* Adjust line-height to vertically center text */
+  margin: 0;
+  outline: none;
+  padding: 0 20px; /* Add padding for text */
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
     
     #header {
       text-align: left;
@@ -113,6 +135,34 @@
     #map {
       flex: 1;
     }
+
+
+    .loading-container {
+      display: none; /* Hide the loading container initially */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .loading {
+      border: 5px solid #3498db;
+      border-top: 5px solid black;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -131,25 +181,76 @@
     
   </div>
 
-      <div id="map-container">
-        <div id="map"></div>
-        <div id="vstack">
-          <button id="run-python" class="button-1" onclick="runPythonScript()">Run Python Script</button>
-          
-          <script>
-            function runPythonScript() {
-                fetch('/run_script')
-                    .then(response => response.text())
-                    .then(data => console.log(data))
-                    .catch(error => console.error('Error:', error));
-            }
-          </script>
-        </div>
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="vstack">
+      <button id="run-python" class="button-1" onclick="finalize()">Run Python Script</button>
+      <!-- Dropdown added here -->
+      <select id="zoom-locations" class="button-2">
+        <option value="36.7783,-119.4179">California</option>
+        <option value="32.7157,-117.1611">San Diego</option>
+        <option value="34.0522,-118.2437">Los Angeles</option>
+        <option value="default">Default Zoom</option>
+      </select>
+      <!-- End of Dropdown -->
+      <div class="loading-container">
+        <div class="loading"></div>
+        <div class="output"></div>
       </div>
+    </div>
+  </div>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.5/dist/leaflet.draw.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+     // Define the bounds for California
+const californiaBounds = [
+  [32.5343, -124.4096], // Southwest coordinates
+  [42.0095, -114.1308]  // Northeast coordinates
+];
+
+// Set the maximum bounds of the map to California's boundaries
+mymap.setMaxBounds(californiaBounds);
+mymap.setMinZoom(9); // Set a minimum zoom level
+
+// Disable zooming, including scroll, zoom control, double-click, and pinch
+mymap.scrollWheelZoom.disable();
+mymap.touchZoom.disable();
+if (mymap.tap) mymap.tap.disable(); // Disable tap if present (for mobile)
+mymap.doubleClickZoom.disable();
+mymap.boxZoom.disable();
+mymap.keyboard.disable();
+
+const zoomLocationsDropdown = document.getElementById('zoom-locations');
+
+zoomLocationsDropdown.addEventListener('change', function () {
+  const selectedLocation = this.value;
+
+  // Set the map view based on the selected location
+  switch (selectedLocation) {
+    case 'California':
+      mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+      break;
+    case 'San Diego':
+      mymap.setView([32.7157, -117.1611], 9); // San Diego: Latitude, Longitude, Zoom Level
+      break;
+    case 'Los Angeles':
+      mymap.setView([34.0522, -118.2437], 9); // Los Angeles: Latitude, Longitude, Zoom Level
+      break;
+    case 'default':
+      // Add code here to reset the map to its default state with full zoom functionality
+      mymap.setView([40.770116, -73.967909], 8); // Example default view
+      // You can set your desired default view coordinates and zoom level here
+      break;
+    default:
+      break;
+  }
+});
+
+// Initial setup for California (default zoom)
+mymap.setView([36.7783, -119.4179], 9); // California: Latitude, Longitude, Zoom Level
+    </script>
 
     </body>
     </html>
