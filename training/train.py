@@ -29,7 +29,7 @@ if sys.argv[1] == "train":
     model.summary()
 
     model.fit(data, epochs=1)
-    model.save("trained.h5")
+    model.save("model.h5")
 else:
     model = tf.keras.models.load_model("trained.h5")
 
@@ -41,10 +41,10 @@ pred_y = pred_x_y[1][:1]
 preds = model.predict(pred_x)[0]
 # print(np.mean(preds))
 preds = tf.map_fn(lambda x: 1.0 if x >= 0.1 else 0.0, preds)
-preds = tf.reshape(preds, (32, 32))
+# preds = tf.reshape(preds, (32, 32))
 plt.imshow(pred_x[0,:,  :,-1])
 plt.show()
-plt.imshow(tf.reshape(pred_y, (32, 32)))
+# plt.imshow(tf.reshape(pred_y, (32, 32)))
 plt.show()
 plt.imshow(preds)
 plt.show()

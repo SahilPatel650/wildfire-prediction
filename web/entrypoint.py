@@ -13,11 +13,11 @@ def run_script():
     data = request.json
     grid_data = data['gridData']
     grid_data_str = json.dumps(grid_data)
-    print(grid_data)
+    # print(grid_data)
 
     import subprocess
     # Code to execute your Python script
-    subprocess.run(["python3", "web/exec.py", grid_data_str])  # Replace 'your_script.py' with your actual script name
+    subprocess.run(["python3", "main.py", grid_data_str])  # Replace 'your_script.py' with your actual script name
     return jsonify({"message": "Python script executed successfully!"})
 
 if __name__ == '__main__':

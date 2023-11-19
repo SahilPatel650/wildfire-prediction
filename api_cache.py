@@ -25,6 +25,21 @@ def relative_humidity_to_specific_humidity(temp_celsius, relative_humidity):
 
 
 def get_elevation(latitude, longitude, ELEVATION_API_KEY):
+    cache_file = './weather_cache/elevation.json'
+    if os.path.exists(cache_file):
+        with open(cache_file, 'r') as file:
+            cache = json.load(file)
+    else:
+        cache = {}
+    
+    cache_key = f"{latitude},{longitude}"
+
+    # Check if data is in cache
+    if cache_key in cache:
+        print("Fetching from cache")
+        return cache[cache_key]
+
+
     elevation_url = f"https://maps.googleapis.com/maps/api/elevation/json?locations={latitude},{longitude}&key={ELEVATION_API_KEY}"
     elevation_response = requests.get(elevation_url)
     
@@ -36,7 +51,12 @@ def get_elevation(latitude, longitude, ELEVATION_API_KEY):
 
     try:
         elevation_result = elevation_data['results'][0]['elevation']
+        cache[cache_key] = elevation_result
+        with open(cache_file, 'a') as file:
+            json.dump(cache, file)
+
         return elevation_result
+
     except (KeyError, IndexError):
         print("Unable to retrieve elevation data.")
         return None
@@ -78,7 +98,7 @@ def get_weather_data(latitude, longitude, start_date, end_date, VISUAL_CROSSING_
         }
 
         cache[cache_key] = extracted_data
-        with open(cache_file, 'w') as file:
+        with open(cache_file, 'a') as file:
             json.dump(cache, file)
 
         return extracted_data
