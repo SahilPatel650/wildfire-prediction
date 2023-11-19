@@ -3,14 +3,6 @@ import numpy as np
 import random
 from api_cache import get_weather_data
 
-# Define your Google Elevation API key here
-ELEVATION_API_KEY = "AIzaSyAhtNZsHIYxwfy2Ms5-lxAa9v-tOA_hF78"
-
-# Define your Visual Crossing API key here
-VISUAL_CROSSING_API_KEY = "GWL9ETYVUYCUBM8G78QPA4PPG"
-
-
-
 def generate_3d_array(location_array, start_date, end_date):
     # Define the dimensions of the 3D array
     num_arrays = 7
