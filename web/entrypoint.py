@@ -13,7 +13,7 @@ def run_script():
     data = request.json
     grid_data = data['gridData']
     grid_data_str = json.dumps(grid_data)
-    print(grid_data)
+    # print(grid_data)
 
     import subprocess
     # Code to execute your Python script
