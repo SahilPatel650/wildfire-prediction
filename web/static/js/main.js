@@ -284,7 +284,7 @@ function prepareData(gridData) {
 
 document.getElementById("run-python").addEventListener("mouseup", () => {
   let reversedGridData = prepareData(gridData);
-  console.log(reversedGridData);
+  // console.log(reversedGridData);
 
   fetch("/run_script", {
     // Updated URL
@@ -295,6 +295,8 @@ document.getElementById("run-python").addEventListener("mouseup", () => {
     body: JSON.stringify({ gridData: reversedGridData }),
   })
     .then((response) => response.json())
-    .then((data) => console.log("Success:", data))
+    .then(async () => {
+      console.log("Success");
+    })
     .catch((error) => console.error("Error:", error));
 });
