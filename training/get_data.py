@@ -1,15 +1,14 @@
 import re
 import numpy as np
-
 import tensorflow as tf
 
-INPUT_FEATURES = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph', 'pr', 'PrevFireMask']
+INPUT_FEATURES = ['elevation', 'PrevFireMask']
 OUTPUT_FEATURES = ['FireMask']
 
 DATA_STATS = {
     # Elevation in m.
     # 0.1 percentile, 99.9 percentile
-    'elevation': (0.0, 3141.0, 657.3003, 649.0147),
+    'elevation': (-41.752130, 4355.983, 880.306023, 138.177659),
     # Pressure
     # 0.1 percentile, 99.9 percentile
     'pdsi': (-6.12974870967865, 7.876040384292651, -0.0052714925, 2.6823447),
@@ -52,11 +51,11 @@ def random_crop_input_and_output_images(input_img, output_img, sample_size, num_
     combined = tf.concat([input_img, output_img], axis=2)
     combined = tf.image.random_crop(
         combined,
-        [sample_size, sample_size, num_in_channels + num_out_channels]
-    )
+        [sample_size, sample_size, num_in_channels + num_out_channels])
     input_img = combined[:, :, 0:num_in_channels]
     output_img = combined[:, :, -num_out_channels:]
     return input_img, output_img
+
 
 def center_crop_input_and_output_images(input_img, output_img, sample_size):
     central_fraction = sample_size / input_img.shape[0]
@@ -68,12 +67,12 @@ def _get_base_key(key):
     match = re.match(r'([a-zA-Z]+)', key)
     if match:
         return match.group(1)
-    raise ValueError('Key {} does not match regex'.format(key))
+    raise ValueError('The provided key does not match the expected pattern: {}'.format(key))
 
 def _clip_and_rescale(inputs, key):
     base_key = _get_base_key(key)
     if base_key not in DATA_STATS:
-        raise ValueError("No stats for key {}".format(key))
+        raise ValueError('No data statistics available for the requested key: {}.'.format(key))
     min_val, max_val, _, _ = DATA_STATS[base_key]
     inputs = tf.clip_by_value(inputs, min_val, max_val)
     return tf.math.divide_no_nan((inputs - min_val), (max_val - min_val))
@@ -81,21 +80,27 @@ def _clip_and_rescale(inputs, key):
 def _clip_and_normalize(inputs, key):
     base_key = _get_base_key(key)
     if base_key not in DATA_STATS:
-        raise ValueError("No stats for key {}".format(key))
+        raise ValueError('No data statistics available for the requested key: {}.'.format(key))
     min_val, max_val, mean, std = DATA_STATS[base_key]
     inputs = tf.clip_by_value(inputs, min_val, max_val)
-    return tf.math.divide_no_nan(inputs - mean, std)
+    inputs = inputs - mean
+    return tf.math.divide_no_nan(inputs, std)
 
 def _get_features_dict(sample_size, features):
     sample_shape = [sample_size, sample_size]
     features = set(features)
     columns = [
-        tf.io.FixedLenFeature(shape=sample_shape, dtype=tf.float32)
-        for _ in features
+        tf.io.FixedLenFeature(shape=sample_shape, dtype=tf.float32) for _ in features
     ]
     return dict(zip(features, columns))
 
-def _parse_fn(example_proto, data_size, sample_size, num_in_channels, clip_and_normalize, clip_and_rescale, random_crop, center_crop):
+def _parse_fn(
+    example_proto, data_size, sample_size,
+    num_in_channels, clip_and_normalize,
+    clip_and_rescale, random_crop, center_crop
+):
+    if (random_crop and center_crop):
+        raise ValueError('Cannot have both random_crop and center_crop be True')
     input_features, output_features = INPUT_FEATURES, OUTPUT_FEATURES
     feature_names = input_features + output_features
     features_dict = _get_features_dict(data_size, feature_names)
@@ -103,54 +108,55 @@ def _parse_fn(example_proto, data_size, sample_size, num_in_channels, clip_and_n
 
     if clip_and_normalize:
         inputs_list = [
-            _clip_and_normalize(features.get(key), key) for key in input_features
-        ]
-    
+        _clip_and_normalize(features.get(key), key) for key in input_features
+    ]
     elif clip_and_rescale:
         inputs_list = [
             _clip_and_rescale(features.get(key), key) for key in input_features
         ]
     else:
         inputs_list = [features.get(key) for key in input_features]
-
+  
     inputs_stacked = tf.stack(inputs_list, axis=0)
     input_img = tf.transpose(inputs_stacked, [1, 2, 0])
+
     outputs_list = [features.get(key) for key in output_features]
     assert outputs_list, 'outputs_list should not be empty'
     outputs_stacked = tf.stack(outputs_list, axis=0)
-    assert len(outputs_stacked.shape) == 3, 'outputs_stacked should be rank 3'
+
+    outputs_stacked_shape = outputs_stacked.get_shape().as_list()
+    assert len(outputs_stacked.shape) == 3,('outputs_stacked should be rank 3'
+                                            'but dimensions of outputs_stacked'
+                                            f' are {outputs_stacked_shape}')
     output_img = tf.transpose(outputs_stacked, [1, 2, 0])
 
+    if random_crop:
+        input_img, output_img = random_crop_input_and_output_images(input_img, output_img, sample_size, num_in_channels, 1)
+    if center_crop:
+        input_img, output_img = center_crop_input_and_output_images(input_img, output_img, sample_size)
     output_img = tf.reshape(output_img, [-1])
-    output_img = tf.cast(output_img, tf.int32)
-    output_img = tf.map_fn(lambda x: 0 if x < 0 else x, output_img)
+    output_img = tf.map_fn(lambda x:0.0 if x < 0 else x, output_img)
+    output_img = tf.reshape(output_img, (64, 64, 1))
     return input_img, output_img
 
-def get_dataset(file_pattern, data_size, sample_size, batch_size, num_in_channels, clip_and_normalize, clip_and_rescale, random_crop, center_crop):
+def get_dataset(file_pattern, data_size, sample_size,
+                batch_size, num_in_channels, compression_type,
+                clip_and_normalize, clip_and_rescale,
+                random_crop, center_crop):
+    if (clip_and_normalize and clip_and_rescale):
+        raise ValueError('Cannot have both normalize and rescale.')
     dataset = tf.data.Dataset.list_files(file_pattern)
     dataset = dataset.interleave(
-        lambda x: tf.data.TFRecordDataset(x, compression_type=None),
-        num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        lambda x: tf.data.TFRecordDataset(x, compression_type=compression_type),
+        num_parallel_calls=tf.data.experimental.AUTOTUNE
+    )
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     dataset = dataset.map(
-        lambda x: _parse_fn(
+        lambda x: _parse_fn(  # pylint: disable=g-long-lambda
             x, data_size, sample_size, num_in_channels, clip_and_normalize,
             clip_and_rescale, random_crop, center_crop),
-        num_parallel_calls=tf.data.experimental.AUTOTUNE)
+        num_parallel_calls=tf.data.experimental.AUTOTUNE
+    )
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     return dataset
-
-if __name__ == "__main__":
-    dataset = get_dataset(
-      "data/next_day_wildfire_spread_train*",
-      data_size=64,
-      sample_size=64,
-      batch_size=100,
-      num_in_channels=8,
-      clip_and_normalize=False,
-      clip_and_rescale=False,
-      random_crop=False,
-      center_crop=False
-    )
-    # print(np.unique(next(iter(dataset))[1].numpy()))
