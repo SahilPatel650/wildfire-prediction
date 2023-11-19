@@ -115,6 +115,7 @@ function createGrid() {
 
   let latitudes = [];
   let longitudes = [];
+  isDragging = false;
 
   for (let lat = southWest.lat; lat < northEast.lat; lat += gridSizeLat) {
     latitudes.push(lat);
