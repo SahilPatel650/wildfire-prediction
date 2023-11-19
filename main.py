@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
     # Convert the JSON data into the 2D array
     for i in range(64):
+        print(i)
         for j in range(64):
             # Extract latitude, longitude, and selected from the JSON data
             arr = grid_data[i][j]
@@ -45,4 +46,4 @@ if __name__ == "__main__":
     print(preds)
     plt.imshow(preds, cmap=colormaps["Reds"])
     # plt.show()
-    plt.savefig("web/static/uploads/" + img_path, bbox_inches="tight")
+    plt.savefig("./web/static/uploads/" + img_path, bbox_inches="tight")
