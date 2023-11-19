@@ -140,7 +140,7 @@ function createGrid() {
         fillColor: 'transparent',
       }).addTo(mymap);
 
-      square.on('mouseup', function () {
+      square.on('click', function () {
         const latIndex = Math.floor((lat - southWest.lat) / gridSizeLat);
         const lngIndex = Math.floor((lng - southWest.lng) / gridSizeLng);
 
@@ -171,7 +171,7 @@ function createGrid() {
         square.fire('mousemove', e); // Manually trigger mousemove event on mousedown
       });
 
-      document.addEventListener('mouseup', function () {
+      document.addEventListener('click', function () {
         if (isDragging) {
           console.log('stopped dragging');
           isDragging = false;
@@ -197,46 +197,7 @@ function createGrid() {
     }
   }
 }
-/** *
-// Assuming gridData is a 32x32 array
-// Expand gridData from 32x32 to 64x64
-function expandGridData() {
-  const expandedGridData = [];
-  for (let i = 0; i < 64; i++) {
-    expandedGridData[i] = [];
-    for (let j = 0; j < 64; j++) {
-      expandedGridData[i][j] = {
-        lat: null,
-        lng: null,
-        selected: false,
-      };
-    }
-  }
 
-  // Interpolate and update latitude, longitude, and selected status
-  for (let i = 0; i < 32; i++) {
-    for (let j = 0; j < 32; j++) {
-      const originalLat = gridData[i][j].lat;
-      const originalLng = gridData[i][j].lng;
-      const originalSelected = gridData[i][j].selected;
-
-      for (let k = 0; i < 2; i++) {
-        for (let l = 0; j < 2; j++) {
-          expandedGridData[2*i][2*j].lat = originalLat - 0.072;
-          expandedGridData[2*i][2*j].lng = originalLng - 0.072;
-          expandedGridData[2*i + 1][2*j + 1].lat = originalLat - 0.072;
-          expandedGridData[2*i + 1][2*j + 1].lng = originalLng - 0.072;
-          expandedGridData[2*i][2*j].selected = originalSelected;
-          expandedGridData[2*i + 1][2*j + 1].selected = originalSelected;
-    }
-  }
-}
-
-  // Update gridData with the expanded grid
-  gridData = expandedGridData.slice(0);
-}
-}
-*/
 
 function finalizeGrid() {
   gridLocked = true; // Lock the grid
@@ -254,9 +215,6 @@ function resetGridData() {
   }
 }
 
-function reverseArray(gridData) {
-  return gridData.map(row => row.reverse()).reverse();
-}
 
 
 
@@ -274,18 +232,70 @@ function resetMap() {
 
   gridLocked = false; // Unlock the grid
 }
-console.log(gridData);
 
+// create a function to prepare gridData for python
+// need to create a reversed copy of the data and then supersample the original
+// supersample by a factor of 2
+// lets say we are at index i, j in the original grid,
+// then we need to assign the supersampled grid to be at index (2i, 2j), (2i+1, 2j), (2i, 2j+1), (2i+1, 2j+1)
+// we can do this by looping through the original grid and assigning the supersampled grid
+function prepareData(gridData) {
+  // Reverse the gridData without modifying the original array
+  let reversedGridData = [];
+  for (let i = gridData.length - 1; i >= 0; i--) {
+    reversedGridData.push(gridData[i]);
+  }
+
+  // Expand gridData from 32x32 to 64x64
+  const expandedGridData = [];
+  for (let i = 0; i < 64; i++) {
+    expandedGridData[i] = [];
+    for (let j = 0; j < 64; j++) {
+      expandedGridData[i][j] = {
+        lat: null,
+        lng: null,
+        selected: false,
+      };
+    }
+  }
+
+  // Interpolate and update latitude, longitude, and selected status
+  for (let i = 0; i < 32; i++) {
+    for (let j = 0; j < 32; j++) {
+      const originalLat = reversedGridData[i][j].lat;
+      const originalLng = reversedGridData[i][j].lng;
+      const originalSelected = reversedGridData[i][j].selected;
+
+      expandedGridData[2 * i][2 * j].lat = originalLat;
+      expandedGridData[2 * i][2 * j].lng = originalLng;
+      expandedGridData[2 * i + 1][2 * j].lat = originalLat;
+      expandedGridData[2 * i + 1][2 * j].lng = originalLng;
+      expandedGridData[2 * i][2 * j + 1].lat = originalLat;
+      expandedGridData[2 * i][2 * j + 1].lng = originalLng;
+      expandedGridData[2 * i + 1][2 * j + 1].lat = originalLat;
+      expandedGridData[2 * i + 1][2 * j + 1].lng = originalLng;
+      expandedGridData[2 * i][2 * j].selected = originalSelected;
+      expandedGridData[2 * i + 1][2 * j].selected = originalSelected;
+      expandedGridData[2 * i][2 * j + 1].selected = originalSelected;
+      expandedGridData[2 * i + 1][2 * j + 1].selected = originalSelected;
+    }
+  }
+
+  return expandedGridData;
+}
 
 document.getElementById("run-python").addEventListener('mouseup', () => {
+  let reversedGridData = prepareData(gridData);
+  console.log(reversedGridData);
+
   fetch('/run_script', {  // Updated URL
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ gridData: gridData }),
+      body: JSON.stringify({ gridData: reversedGridData }),
   })
   .then(response => response.json())
-  .then(data => console.log(data))
+  .then(data => console.log('Success:', data))
   .catch(error => console.error('Error:', error));
 });
