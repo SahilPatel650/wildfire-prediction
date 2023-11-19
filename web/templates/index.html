@@ -57,9 +57,8 @@
     #header {
       text-align: left;
       color: white;
-      padding: 20px;
+      padding: 4px;
       background: #011c32;
-      border-bottom: 2px solid black;
       position: relative;
     }
     
@@ -70,12 +69,21 @@
       width: 100px; /* Adjust width as needed */
       height: auto;
     }
+    #header img.image1{
+      position: absolute;
+      padding-top: 4pt;
+      padding-left: 10px;
+
+      top: -1px;
+      width: 60px; /* Adjust width as needed */
+      height: auto;
+    }
 
     #header img.image2 {
       align-items: relative;
       position: right;
       top: 20px;
-      left: 1400px; /* Adjust the right position */
+      left: 1430px; /* Adjust the right position */
       width: 50px;
       height: 50%;
     }
@@ -86,7 +94,7 @@
       align-items: relative;
       position: right;
       top: 20px;
-      left: 1300px; /* Adjust the right position */
+      left: 1330px; /* Adjust the right position */
       width: 80px;
       height: 50%;
     }
@@ -117,7 +125,7 @@
     <img class = "image2" src="{{ url_for('static', filename='images/github-mark-white.svg') }}">
   </a>
   <a href="blazecast.co"  target="_blank"> 
-    <img src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
+    <img class="image1" src="{{ url_for('static', filename='images/blaze-logo.png') }}" alt="Logo">
   </a>
     <h1>BlazeCast AI</h1>
     
